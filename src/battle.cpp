@@ -15,7 +15,7 @@ void Battle::run() {
 void Battle::attack_round() {
   // attacker
   Board& active = board[turn];
-  if (!active.minions[active.next_attacker].exists()) {
+  if (active.next_attacker >= BOARDSIZE || !active.minions[active.next_attacker].exists()) {
     active.next_attacker = 0;
   }
   int from = active.next_attacker;

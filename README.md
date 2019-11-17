@@ -35,10 +35,43 @@ The program reports mean and median of the scores, and the 0%, 10%, .., 100% per
 A better user interface is a work in progress.
 
 
-Input format
+Usage
 ----
-The input files consist of a series of commands to define the board state. See examples/run1.txt, or start the program and type `help`.
 
+    hsbg run.txt
+
+The input file consists of a series of commands to define the board state. See examples/run1.txt.
+
+The program can also be used in interactive mode, by starting it without any arguments. Type `help` to get a list of commands:
+
+    -- Defining the board
+    board      = begin defining player board
+    vs         = begin defining opposing board
+    * <minion> = give the next minion
+    HP <hero>  = tell that a hero power is used
+
+    -- Running simulations
+    actual <i> = tell about actual outcome (used in simulation display)
+    run (<n>)  = run n simulations, report statistics (default: 1000)
+
+    -- Stepping through a single battle
+    show       = show the board state
+    reset      = reset battle
+    step       = do 1 attack step, or start if battle not started yet
+    trace      = do steps until the battle ends
+    back       = step backward. can be used to re-roll RNG
+    
+    -- Other
+    info       = show a message
+    help       = show this help message
+    quit       = quit the simulator
+    
+    -- Minion format
+    Minions are specified as
+      [attack/health] [golden] <name>, <buff>, <buff>, ..
+    for example
+     * 10/12 Nightmare Amalgam
+     * Golden Murloc Tidecaller, poisonous, divine shield, taunt, windfury, +12 attack
 
 FAQ
 ----

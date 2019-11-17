@@ -17,6 +17,7 @@ enum class HeroPower : unsigned char {
   TheLichKing,         // give right-most minion reborn
   Giantfin,            // give minions "deathrattle summon a 1/1 murloc"
   ProfessorPutricide,  // give left-most minion +10 attack
+  COUNT,
 };
 
 extern const char* hero_power_names[];

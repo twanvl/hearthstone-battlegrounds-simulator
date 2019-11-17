@@ -295,6 +295,9 @@ private:
 };
 
 inline ostream& operator << (ostream& s, Board const& b) {
+  if (b.hero_power != HeroPower::None) {
+    s << "heropower " << b.hero_power << endl;
+  }
   for (int i=0; i<BOARDSIZE; ++i) {
     if (b.minions[i].exists()) {
       s << "* " << b.minions[i] << endl;

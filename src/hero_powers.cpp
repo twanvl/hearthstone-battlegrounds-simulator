@@ -47,6 +47,7 @@ void Battle::do_hero_power(HeroPower hp, int player) {
         board[player].minions[0].attack += 10;
       }
       break;
+    case HeroPower::COUNT:;
   }
 }
 

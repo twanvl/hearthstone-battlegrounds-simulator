@@ -76,20 +76,20 @@ The program can also be used in interactive mode, by starting it without any arg
 FAQ
 ----
 
-Q: How do I put in a board state
+Q: How do I put in a board state  
 A: Currently in C++ code, see test.cpp.
 The dream is to eventually make an image recognizer to do this automatically, but that might not be worth the effort.
 
-Q: What about Bob's tavern?
+Q: What about Bob's tavern?  
 A: Currently only actual battles are simulated, the program doesn't know about buying, selling, leveling etc.
 
-Q: What can I do with this?
+Q: What can I do with this?  
 A: 
 * You can see how lucky you are
 * You can learn to better position your minions
 * (future) you can see how well your board is expected to do at a certain turn of the game
 
-Q: Known bugs
+Q: Known bugs  
 A:
 * Old Murk Eye only counts friendly minnions
 

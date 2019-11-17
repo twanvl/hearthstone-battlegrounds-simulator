@@ -6,35 +6,38 @@ This program can quickly run over a battle many times, and give statistics on th
 
 Example output:
 
-    2/2 Lightfang Enforcer (*****)
-    24/26 Cave Hydra (****)
-    4/4 Managerie Magician (****)
-    2/4 Brann Bronzebeard (*****)
-    36/31 [TD] Nightmare Amalgam (**)
-    16/18 Imp Gang Boss (***)
-    39/27 [TD] Golden Kaboom Bot (**)
-      VS
-    7/10 [T] Foe Reaper 4000 (******)
-    36/31 [TP] Golden Nightmare Amalgam (**)
-    7/7 Golden Kindly Grandmother (**)
-    5/2 Rat Pack (**)
-    7/7 Rat Pack (**)
-    5/5 Pre-nerf Mama Bear (******)
-    6/10 [T] Golden Vulgar Homunculus (*)
-    ----------------------------------
-    win: 865, tie: 0, lose: 135
-    mean score: 8.313
-    median score: 10
-    percentiles: -11 -3 5 9 9 10 11 11 12 15 20
-    ----------------------------------
+    Turn 8
+    * 4/6 Cave Hydra
+    * 8/2 Kaboom Bot
+    * 10/4 Kaboom Bot
+    * 9/6 Nightmare Amalgam
+    * 2/2 Lightfang Enforcer
+    * 4/6 Imp Gang Boss
+    VS
+    * 2/2 Kaboom Bot
+    * 2/2 Kaboom Bot
+    * 6/3 Cobalt Guardian, divine shield
+    * 2/6 Security Rover
+    * 4/2 Micro Machine
+    * 1/5 Junkbot
+    * 5/6 Psych-o-Tron, taunt, divine shield
+    --------------------------------
+    win: 2%, tie: 2%, lose: 95%
+    mean score: -6.661, median score: -7
+    percentiles: -14 -11 -9 -8 -8 -7 -6 -5 -4 -3 8
+    actual outcome: -9, is at the 21-th percentile
 
-The marks after the minion names indicate abilities (T for taunt, D for divine shield, P for poisonous). The *s indicate the amount of stars a minion is worth.
-
-The score at the end is the number of stars of the remanining minions of the first player, or negative the stars of the second player. This corresponds to damage dealt or negative damage taken, excluding damage from the character's level.
+The score at the end is the number of stars of the remanining minions of the first player, or negative the stars of the second player.
+So a positive score means the first player wins by that many stars, a negative score means that the first player loses.
+This score corresponds to damage dealt or taken, excluding damage from the character's level.
 The program reports mean and median of the scores, and the 0%, 10%, .., 100% percentiles
 
-
 A better user interface is a work in progress.
+
+
+Input format
+----
+The input files consist of a series of commands to define the board state. See examples/run1.txt, or start the program and type `help`.
 
 
 FAQ

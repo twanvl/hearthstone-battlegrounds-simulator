@@ -129,16 +129,14 @@ const int NUM_EXTRA_POS = 3;
 
 // Board state
 struct Board : MinionArray<BOARDSIZE> {
-  int next_attacker;
+  int next_attacker = 0;
 
   // extra positions to keep track of
   // we need enough for cleave attacks
-  int track_pos[3];
+  int track_pos[3] = {-1};
   // hero power to start with
-  HeroPower hero_power;
+  HeroPower hero_power = HeroPower::None;
 
-
-  Board() : next_attacker(0), hero_power(HeroPower::None) {}
 
   bool insert(int pos, Minion const& minion) {
     if (!MinionArray::insert(pos,minion)) return false;
@@ -299,7 +297,7 @@ private:
 inline ostream& operator << (ostream& s, Board const& b) {
   for (int i=0; i<BOARDSIZE; ++i) {
     if (b.minions[i].exists()) {
-      s << b.minions[i] << endl;
+      s << "* " << b.minions[i] << endl;
     }
   }
   return s;

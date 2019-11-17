@@ -18,7 +18,10 @@ struct Battle {
   // mechs that died for each player
   MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
   // logging
-  int verbose;
+  int verbose = 0;
+
+  Battle() {}
+  Battle(Board const& b0, Board const& b1) : board{b0,b1} {}
 
   bool done() const {
     return board[0].empty() || board[1].empty();

@@ -1,0 +1,125 @@
+Info: An example of the HS battlegrounds simulator.
+Info: This is a replay of https://www.youtube.com/watch?v=TV0HSwbhasQ
+Info:
+
+================================
+Info: Turn 1
+
+Board:
+* Vulgar Homunculus
+Vs
+* Rockpool Hunter
+
+Show
+Actual: 0
+
+================================
+Info: Turn 2
+
+Vs
+* Dire Wolf Alpha, +1/+2
+
+Show
+Actual: 0
+
+================================
+Info: Turn 3
+
+Board
+* Vulgar Homunculus
+* Alley Cat
+* Alley Cat
+* Tabby Cat
+Vs
+* Harvest Golem
+* Voidwalker
+
+Show
+Actual: 1
+
+================================
+Info: Turn 4
+
+Board
+* Kaboom Bot
+* Kaboom Bot
+* Alley Cat
+* Alley Cat
+* Tabby Cat
+* Vulgar Homunculus
+Vs
+* Kaboom Bot
+* Kaboom Bot
+* Rockpool Hunter, +2/+2
+* Zoobot
+* Vulgar Homunculus, +1/+1
+
+Show
+Actual: -1
+
+================================
+Info: Turn 8
+
+Board
+* Cave Hydra, +2/+2
+* Kaboom Bot, +6 attack
+* Kaboom Bot, +8/+2
+* Nightmare Amalgam, +6/+2
+* Lightfang Enforcer
+* Imp Gang Boss, +2/+2
+Vs AFK
+* Kaboom Bot
+* Kaboom Bot
+* Cobalt Guardian, divine shield
+* Security Rover
+* Micro Machine, +3/+0
+* Junkbot
+* PsychOTron, +2/+2
+
+Show
+Actual: -9
+
+================================
+Info: Turn 9
+
+Board
+* 4/6 Cave Hydra
+* 23/9 Kaboom Bot, microbots
+* 16/9 Nightmare Amalgam, microbots
+* Lightfang Enforcer
+* 6/8 Imp Gang Boss
+Vs
+* 11/9 CobaltGuardian, divine shield
+* Brann Bronzebeard
+* 7/8 golden Kindly Grandmother
+* CobaltGuardian, divine shield
+* Screwjank Clunker
+* 8/8 OldMurkEye
+* 17/17 Nightmare Amalgam, taunt, poison
+Actual: -8
+Show
+
+================================
+Info: Turn 10
+Board
+* Brann Bronzebeard
+* 8/10 Cave Hydra
+* 25/11 Kaboom Bot, microbots
+* 18/11 Nightmare Amalgam, microbots
+* Lightfang Enforcer
+* 12/14 Imp Gang Boss
+Vs
+* GoldrinnTheGreatWolf
+* PilotedShredder
+* golden AlleyCat
+* 5/6 NightmareAmalgam with taunt
+* Houndmaster
+Actual: 17
+Show
+================================
+
+#* HP: Nefarian
+
+#run 1000
+#hp: Neffarian
+

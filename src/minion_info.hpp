@@ -51,7 +51,7 @@ MinionType random_four_cost_minion();
 MinionType random_deathrattle_minion();
 MinionType random_legendary_minion();
 
-MinionType type_by_name(std::string const& name);
 
-// events
+template <typename A, int N>
+constexpr int array_size(A(&)[N]) { return N; }
 

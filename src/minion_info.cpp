@@ -213,9 +213,6 @@ const MinionType legendary_minions[] = {
 // -----------------------------------------------------------------------------
 
 template <typename A, int N>
-constexpr int array_size(A(&)[N]) { return N; }
-
-template <typename A, int N>
 A random_element(A(& list)[N]) {
   return list[random(array_size(list))];
 }

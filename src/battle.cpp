@@ -7,6 +7,7 @@ using std::endl;
 // -----------------------------------------------------------------------------
 
 void Battle::run() {
+  start();
   while (!done()) {
     attack_round();
   }
@@ -14,6 +15,8 @@ void Battle::run() {
 
 void Battle::start() {
   turn = random(2);
+  board[0].next_attacker = 0;
+  board[1].next_attacker = 0;
   do_hero_powers();
 }
 

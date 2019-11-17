@@ -16,7 +16,7 @@ struct Minion {
   unsigned deathrattle_murlocs : 1; // for giantfin
   unsigned deathrattle_microbots : 3;
   unsigned deathrattle_golden_microbots : 3;
-  unsigned deathrattle_plants : 3; // from adapt
+  unsigned deathrattle_plants  : 3; // from adapt
   int attack_buff : 8, health_buff : 8; // temporary buffs from auras, at most 7*4
 
   Minion() {
@@ -118,19 +118,25 @@ struct Minion {
 
 inline ostream& operator << (ostream& s, Minion minion) {
   s << minion.attack << "/" << minion.health << " ";
-  if (minion.taunt || minion.divine_shield || minion.poison || minion.windfury) {
+  /*if (minion.taunt || minion.divine_shield || minion.poison || minion.windfury) {
     s << "[";
     if (minion.taunt) s << "T";
     if (minion.divine_shield) s << "D";
     if (minion.poison) s << "P";
     if (minion.windfury) s << "W";
     s << "] ";
-  }
+  }*/
   if (minion.golden) s << "Golden ";
   s << minion.name();
-  s << " (";
-  for (int i = 0 ; i < minion.stars(); ++i) s << "*";
-  s << ")";
+  if (false) {
+    s << " (";
+    for (int i = 0 ; i < minion.stars(); ++i) s << "*";
+    s << ")";
+  }
+  if (minion.taunt) s << ", taunt";
+  if (minion.divine_shield) s << ", divine shield";
+  if (minion.poison) s << ", poisonous";
+  if (minion.windfury) s << ", windfury";
   return s;
 }
 

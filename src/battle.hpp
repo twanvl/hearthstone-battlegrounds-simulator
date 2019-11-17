@@ -1,5 +1,6 @@
 #pragma once
 #include "board.hpp"
+#include "hero_powers.hpp"
 #include <iostream>
 #include <cstdlib>
 using std::ostream;
@@ -66,6 +67,10 @@ struct Battle {
   void on_friendly_summon(Minion& m, Minion& summoned, int player);
   void on_attack_and_kill(Minion& m, int player, int pos, bool overkill);
   void on_break_friendly_divine_shield(Minion& m, int player); // for Bolvar
+
+  // Hero powers
+  void do_hero_powers();
+  void do_hero_power(HeroPower, int player);
 };
 
 inline ostream& operator << (ostream& s, Battle const& b) {

@@ -126,6 +126,7 @@ inline ostream& operator << (ostream& s, Minion minion) {
     if (minion.windfury) s << "W";
     s << "] ";
   }
+  if (minion.golden) s << "Golden ";
   s << minion.name();
   s << " (";
   for (int i = 0 ; i < minion.stars(); ++i) s << "*";

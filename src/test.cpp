@@ -204,6 +204,22 @@ Battle game1(int turn) {
     enemy.append(Minion(MinionType::OldMamaBear)); // pre nerf
     enemy.append(Minion(MinionType::VulgarHomunculus,true).set_stats(6,10));
     // outcome: 6
+  } else if (turn == 13) {
+    player.append(Minion(MinionType::LightfangEnforcer));
+    player.append(Minion(MinionType::CaveHydra).set_stats(30,32));
+    player.append(Minion(MinionType::ImpGangBoss).set_stats(18,20));
+    player.append(Minion(MinionType::VirmenSensei));
+    player.append(Minion(MinionType::BrannBronzebeard));
+    player.append(Minion(MinionType::NightmareAmalgam).set_stats(40,35).set_taunt().set_divine_shield().add_deathrattle_microbots(3));
+    player.append(Minion(MinionType::KaboomBot, true).set_stats(43,31).set_taunt().set_divine_shield().add_deathrattle_microbots(3));
+    // Malificent
+    enemy.append(Minion(MinionType::CobaltGuardian).set_stats(9,4).set_divine_shield());
+    enemy.append(Minion(MinionType::CaveHydra).set_stats(30,32));
+    enemy.append(Minion(MinionType::NightmareAmalgam).set_stats(25,18).set_taunt().set_divine_shield().add_deathrattle_microbots());
+    enemy.append(Minion(MinionType::NightmareAmalgam).set_stats(25,18).set_taunt().set_poison());
+    enemy.append(Minion(MinionType::Junkbot).set_stats(4,6));
+    enemy.append(Minion(MinionType::Junkbot).set_stats(4,6));
+    // outcome: 4
   }
   return battle;
 }
@@ -246,7 +262,7 @@ void print_stats(vector<int> const& results) {
 int main() {
   // Test minion IO:
   
-
+  bool aoe = false;
   //for (int i=0; i<5; ++i) {
   int i=12;{
   //for (int i=3; i<4; ++i) {
@@ -254,7 +270,7 @@ int main() {
     b.turn = 0;
     b.verbose = 2;
     cout << "AOE " << endl;
-    b.damage_all(0,1); // nefarian aoe
+    if (aoe) b.damage_all(0,1); // nefarian aoe
     cout << "Turn " << i << endl;
     cout << b;
     cout << endl;
@@ -267,7 +283,7 @@ int main() {
     cout << "score: " << b.score() << endl;
     cout << "----------------------------------" << endl;
     b = game1(i);
-    b.damage_all(0,1); // nefarian aoe
+    if (aoe) b.damage_all(0,1); // nefarian aoe
     print_stats(simulate(b,1000));
     cout << "----------------------------------" << endl;
   }

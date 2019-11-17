@@ -28,7 +28,7 @@ Example output:
     actual outcome: -9, is at the 20-th percentile
 
 This corresponds to the following board state:
-![Example game](github_resources/run1-turn8.png),
+![Example game](github_resources/run1-turn8.png)  
 taken from the game at https://www.youtube.com/watch?v=TV0HSwbhasQ,
 
 The score at the end is the number of stars of the remanining minions of the first player, or negative the stars of the second player.
@@ -41,7 +41,8 @@ Usage
 
     hsbg run.txt
 
-The input file consists of a series of commands to define the board state. See examples/run1.txt.
+The input file consists of a series of commands to define the board state, and looks very similar to the output shown above.
+See [examples/run1.txt](examples/run1.txt).
 
 The program can also be used in interactive mode, by starting it without any arguments. Type `help` to get a list of commands:
 

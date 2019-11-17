@@ -10,7 +10,7 @@ Example output:
     * 4/6 Cave Hydra
     * 8/2 Kaboom Bot
     * 10/4 Kaboom Bot
-    * 9/6 Nightmare Amalgam
+    * 11/6 Nightmare Amalgam
     * 2/2 Lightfang Enforcer
     * 4/6 Imp Gang Boss
     VS
@@ -22,18 +22,19 @@ Example output:
     * 1/5 Junkbot
     * 5/6 Psych-o-Tron, taunt, divine shield
     --------------------------------
-    win: 2%, tie: 2%, lose: 95%
-    mean score: -6.661, median score: -7
-    percentiles: -14 -11 -9 -8 -8 -7 -6 -5 -4 -3 8
-    actual outcome: -9, is at the 21-th percentile
+    win: 2%, tie: 3%, lose: 94%
+    mean score: -6.573, median score: -7
+    percentiles: -14 -11 -9 -8 -8 -7 -6 -5 -4 -3 12
+    actual outcome: -9, is at the 20-th percentile
+
+This corresponds to the following board state:
+![Example game](github_resources/run1-turn8.png),
+taken from the game at https://www.youtube.com/watch?v=TV0HSwbhasQ,
 
 The score at the end is the number of stars of the remanining minions of the first player, or negative the stars of the second player.
 So a positive score means the first player wins by that many stars, a negative score means that the first player loses.
 This score corresponds to damage dealt or taken, excluding damage from the character's level.
 The program reports mean and median of the scores, and the 0%, 10%, .., 100% percentiles
-
-A better user interface is a work in progress.
-
 
 Usage
 ----
@@ -62,7 +63,7 @@ The program can also be used in interactive mode, by starting it without any arg
     back       = step backward. can be used to re-roll RNG
     
     -- Other
-    info       = show a message
+    info <msg> = show a message
     help       = show this help message
     quit       = quit the simulator
     
@@ -72,6 +73,8 @@ The program can also be used in interactive mode, by starting it without any arg
     for example
      * 10/12 Nightmare Amalgam
      * Golden Murloc Tidecaller, poisonous, divine shield, taunt, windfury, +12 attack
+
+A better user interface is a work in progress.
 
 FAQ
 ----

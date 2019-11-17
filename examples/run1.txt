@@ -64,7 +64,7 @@ Board
 * Cave Hydra, +2/+2
 * Kaboom Bot, +6 attack
 * Kaboom Bot, +8/+2
-* Nightmare Amalgam, +6/+2
+* Nightmare Amalgam, +8/+2
 * Lightfang Enforcer
 * Imp Gang Boss, +2/+2
 Vs AFK

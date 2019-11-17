@@ -13,7 +13,7 @@ using std::endl;
 const int MAX_MECHS_THAT_DIED = 4;
 
 struct Battle {
-  int turn; // player to attack next
+  int turn = 0; // player to attack next
   Board board[2];
   // mechs that died for each player
   MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
@@ -21,7 +21,9 @@ struct Battle {
   int verbose = 0;
 
   Battle() {}
-  Battle(Board const& b0, Board const& b1) : board{b0,b1} {}
+  Battle(Board const& b0, Board const& b1) : board{b0,b1} {
+    recompute_auras();
+  }
 
   bool done() const {
     return board[0].empty() || board[1].empty();
@@ -76,6 +78,11 @@ struct Battle {
   // Hero powers
   void do_hero_powers();
   void do_hero_power(HeroPower, int player);
+
+  // Auras
+  void recompute_aura_from(Minion& m, int player, int pos);
+  void recompute_auras(int player);
+  void recompute_auras();
 };
 
 inline ostream& operator << (ostream& s, Battle const& b) {

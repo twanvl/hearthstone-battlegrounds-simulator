@@ -269,12 +269,9 @@ struct Board : MinionArray<BOARDSIZE> {
 
   // Auras
 
-  void recompute_auras() {
-    for_each_alive([&](Minion& m) {
+  void clear_auras() {
+    for_each([&](Minion& m) {
       m.clear_aura_buff();
-    });
-    for_each_with_pos([&](int pos, Minion& m){
-      recompute_aura_from(m, pos);
     });
   }
   template <typename Condition>
@@ -289,9 +286,6 @@ struct Board : MinionArray<BOARDSIZE> {
     if (pos+1 < BOARDSIZE && minions[pos+1].exists()) minions[pos+1].aura_buff(attack,health);
   }
 
-private:
-  void recompute_aura_from(Minion& m, int pos);
-  void on_friendly_summon(Minion& m, Minion& summoned); // summoning outside battle?
 };
 
 inline ostream& operator << (ostream& s, Board const& b) {

@@ -4,32 +4,34 @@
 // Aura buffs
 // -----------------------------------------------------------------------------
 
-void Board::recompute_aura_from(Minion& m, int pos) {
+void Battle::recompute_aura_from(Minion& m, int player, int pos) {
   int factor = m.golden ? 2 : 1;
   switch (m.type) {
     case MinionType::DireWolfAlpha:
-      aura_buff_adjacent(factor, factor, pos);
+      board[player].aura_buff_adjacent(factor, factor, pos);
       break;
     case MinionType::MurlocWarleader:
-      aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
+      board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
       break;
     case MinionType::OldMurkEye: {
-      // TODO: this is incorrect, it should also get buffs for enemy minions
+      // count murlocs for both players
       int count = 0;
-      for_each_with_pos([pos,&count](int i, Minion const& to) {
-        if (pos != i && to.has_tribe(Tribe::Murloc)) count++;
-      });
+      for (int who=0; who<2; ++who) {
+        board[who].for_each_with_pos([=,&count](int i, Minion const& to) {
+          if ((who != player || pos != i) && to.has_tribe(Tribe::Murloc)) count++;
+        });
+      }
       m.buff(factor*count,0);
       break;
     }
     case MinionType::PhalanxCommander:
-      aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.taunt; });
+      board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.taunt; });
       break;
     case MinionType::Siegebreaker:
-      aura_buff_others_if(double_if_golden(1,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
+      board[player].aura_buff_others_if(double_if_golden(1,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
       break;
     case MinionType::MalGanis:
-      aura_buff_others_if(double_if_golden(2,m.golden), double_if_golden(2,m.golden), pos,
+      board[player].aura_buff_others_if(double_if_golden(2,m.golden), double_if_golden(2,m.golden), pos,
         [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
       break;
     default:; // nothing

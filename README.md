@@ -91,5 +91,5 @@ A:
 
 Q: Known bugs  
 A:
-* Old Murk Eye only counts friendly minnions
+* There might be subtle differences in the order of triggers etc.
 

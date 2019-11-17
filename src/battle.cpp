@@ -187,8 +187,8 @@ void Battle::check_for_deaths() {
     }
     if (num_dead[0] == 0 && num_dead[1] == 0) return;
     // run death triggers
+    recompute_auras();
     for (int player=0; player<2; ++player) {
-      board[player].recompute_auras();
       for (int i=0; i<num_dead[player]; ++i) {
         on_death(dead_minions[player][i], player, positions[player][i]);
       }
@@ -250,7 +250,7 @@ void Battle::summon_many(int count, Minion const& m, int player, int pos) {
     board[player].insert(pos, m);
     on_summoned(board[player].minions[pos], player);
   }
-  board[player].recompute_auras();
+  recompute_auras();
 }
 
 void Battle::summon_for_opponent(Minion const& m, int player) {
@@ -259,7 +259,7 @@ void Battle::summon_for_opponent(Minion const& m, int player) {
     int pos = board[1-player].append(m);
     on_summoned(board[1-player].minions[pos], player);
   }
-  board[1-player].recompute_auras();
+  recompute_auras();
 }
 
 void Battle::on_summoned(Minion& summoned, int player) {
@@ -278,5 +278,22 @@ void Battle::do_hero_powers() {
     do_hero_power(board[player].hero_power, player);
     board[player].hero_power = HeroPower::None;
   }
+}
+
+// -----------------------------------------------------------------------------
+// Auras
+// -----------------------------------------------------------------------------
+
+void Battle::recompute_auras() {
+  for (int player=0; player<2; ++player) {
+    recompute_auras(player);
+  }
+}
+
+void Battle::recompute_auras(int player) {
+  board[player].clear_auras();
+  board[player].for_each_with_pos([&,player](int pos, Minion& m) {
+    recompute_aura_from(m, player, pos);
+  });
 }
 

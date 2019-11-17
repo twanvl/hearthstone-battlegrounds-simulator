@@ -118,6 +118,7 @@ const MinionInfo minion_info[] = {
   {"Kangor's Apprentice",6,Tribe::None,3,6,false,false,false,false},
   {"Maexxna",6,Tribe::Beast,2,8,false,false,true,false},
   {"Mama Bear",6,Tribe::Beast,4,4,false,false,false,false},
+  {"Old Mama Bear",6,Tribe::Beast,5,5,false,false,false,false},
   {"Sneed's Old Shredder",6,Tribe::Mech,5,7,false,false,false,false},
   {"Voidlord",6,Tribe::Demon,3,9,false,false,false,false},
   {"Zapp Slywick",6,Tribe::None,0,0,false,false,false,true,false},

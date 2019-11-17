@@ -187,6 +187,23 @@ Battle game1(int turn) {
     enemy.append(Minion(MinionType::BrannBronzebeard));
     enemy.append(Minion(MinionType::Junkbot).set_stats(9,5));
     // outcome: 4
+  } else if (turn == 12) {
+    player.append(Minion(MinionType::LightfangEnforcer));
+    player.append(Minion(MinionType::CaveHydra).set_stats(24,26));
+    player.append(Minion(MinionType::ManagerieMagician));
+    player.append(Minion(MinionType::BrannBronzebeard));
+    player.append(Minion(MinionType::NightmareAmalgam).set_stats(36,31).set_taunt().set_divine_shield().add_deathrattle_microbots(3));
+    player.append(Minion(MinionType::ImpGangBoss).set_stats(16,18));
+    player.append(Minion(MinionType::KaboomBot, true).set_stats(39,27).set_taunt().set_divine_shield().add_deathrattle_microbots(3));
+    // Nefarian (note: used hero power!)
+    enemy.append(Minion(MinionType::FoeReaper4000).set_stats(7,10).set_taunt());
+    enemy.append(Minion(MinionType::NightmareAmalgam,true).set_stats(36,31).set_taunt().set_poison());
+    enemy.append(Minion(MinionType::KindlyGrandmother,true).set_stats(7,7));
+    enemy.append(Minion(MinionType::RatPack).set_stats(5,2));
+    enemy.append(Minion(MinionType::RatPack).set_stats(7,7));
+    enemy.append(Minion(MinionType::OldMamaBear)); // pre nerf
+    enemy.append(Minion(MinionType::VulgarHomunculus,true).set_stats(6,10));
+    // outcome: 6
   }
   return battle;
 }
@@ -231,11 +248,13 @@ int main() {
   
 
   //for (int i=0; i<5; ++i) {
-  int i=11;{
+  int i=12;{
   //for (int i=3; i<4; ++i) {
     Battle b = game1(i);
     b.turn = 0;
     b.verbose = 2;
+    cout << "AOE " << endl;
+    b.damage_all(0,1); // nefarian aoe
     cout << "Turn " << i << endl;
     cout << b;
     cout << endl;
@@ -247,7 +266,9 @@ int main() {
     }
     cout << "score: " << b.score() << endl;
     cout << "----------------------------------" << endl;
-    print_stats(simulate(game1(i),1000));
+    b = game1(i);
+    b.damage_all(0,1); // nefarian aoe
+    print_stats(simulate(b,1000));
     cout << "----------------------------------" << endl;
   }
   cout << sizeof(Battle) << endl;

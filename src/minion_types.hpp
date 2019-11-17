@@ -108,6 +108,7 @@ enum class MinionType : unsigned char {
   KangorsApprentice,
   Maexxna,
   MamaBear,
+  OldMamaBear, // pre nerf
   SneedsOldShredder,
   Voidlord,
   ZappSlywick,

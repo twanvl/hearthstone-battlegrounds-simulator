@@ -121,6 +121,12 @@ void Battle::damage_random_minion(int player, int amount) {
   }
 }
 
+void Battle::damage_all(int player, int amount) {
+  board[player].for_each_with_pos([&](int pos, Minion&) {
+    damage(player, pos, amount);
+  });
+}
+
 void Battle::on_break_divine_shield(int player) {
   board[player].for_each_alive([&](Minion& m) {
     on_break_friendly_divine_shield(m, player);

@@ -164,6 +164,11 @@ void Battle::on_friendly_summon(Minion& m, Minion& summoned, int player) {
         summoned.buff(double_if_golden(4,m.golden), double_if_golden(4,m.golden));
       }
       break;
+    case MinionType::OldMamaBear:
+      if (summoned.has_tribe(Tribe::Beast)) {
+        summoned.buff(double_if_golden(5,m.golden), double_if_golden(5,m.golden));
+      }
+      break;
     default:;
   }
 }

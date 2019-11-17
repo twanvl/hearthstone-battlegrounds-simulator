@@ -48,6 +48,7 @@ struct Battle {
   bool damage(int player, int pos, int damage, bool poison=false);
   bool damage(Minion const& attacker, int player, int pos);
   void damage_random_minion(int player, int damage); // doesn't check for deaths
+  void damage_all(int player, int damage); // doesn't check for deaths
   void check_for_deaths();
 
   // Events during battle

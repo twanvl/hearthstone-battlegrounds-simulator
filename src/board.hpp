@@ -1,5 +1,6 @@
 #pragma once
 #include "minion.hpp"
+#include "hero_powers.hpp"
 #include <iostream>
 #include <cstdlib>
 #include <limits>
@@ -81,6 +82,13 @@ struct MinionArray {
   // Iteration
 
   template <typename F>
+  void for_each(F fun) {
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      fun(minions[i]);
+    }
+  }
+
+  template <typename F>
   void for_each_alive(F fun) {
     for (int i=0; i<N && minions[i].exists(); ++i) {
       if (!minions[i].dead()) {
@@ -96,6 +104,7 @@ struct MinionArray {
       }
     }
   }
+
   template <typename F>
   void for_each_with_pos(F fun) {
     for (int i=0; i<N && minions[i].exists(); ++i) {
@@ -125,9 +134,11 @@ struct Board : MinionArray<BOARDSIZE> {
   // extra positions to keep track of
   // we need enough for cleave attacks
   int track_pos[3];
+  // hero power to start with
+  HeroPower hero_power;
 
 
-  Board() : next_attacker(0) {}
+  Board() : next_attacker(0), hero_power(HeroPower::None) {}
 
   bool insert(int pos, Minion const& minion) {
     if (!MinionArray::insert(pos,minion)) return false;

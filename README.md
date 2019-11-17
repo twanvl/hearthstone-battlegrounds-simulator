@@ -28,18 +28,17 @@ Example output:
     percentiles: -11 -3 5 9 9 10 11 11 12 15 20
     ----------------------------------
 
-The score at the end is the number of stars of the remanining minions of the first player, or negative the stars of the second player. This corresponds to damage dealt or negative damage taken, excluding damage from the character's level.
-
 The marks after the minion names indicate abilities (T for taunt, D for divine shield, P for poisonous). The *s indicate the amount of stars a minion is worth.
+
+The score at the end is the number of stars of the remanining minions of the first player, or negative the stars of the second player. This corresponds to damage dealt or negative damage taken, excluding damage from the character's level.
+The program reports mean and median of the scores, and the 0%, 10%, .., 100% percentiles
+
 
 A better user interface is a work in progress.
 
 
 FAQ
 ----
-
-Q: Known limitations?
-A: The simulator doesn't handle hero powers yet.
 
 Q: How do I put in a board state
 A: Currently in C++ code, see test.cpp.
@@ -53,3 +52,8 @@ A:
 * You can see how lucky you are
 * You can learn to better position your minions
 * (future) you can see how well your board is expected to do at a certain turn of the game
+
+Q: Known bugs
+A:
+* Old Murk Eye only counts friendly minnions
+

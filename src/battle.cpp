@@ -12,6 +12,11 @@ void Battle::run() {
   }
 }
 
+void Battle::start() {
+  turn = random(2);
+  do_hero_powers();
+}
+
 void Battle::attack_round() {
   // attacker
   Board& active = board[turn];
@@ -259,5 +264,16 @@ void Battle::on_summoned(Minion& summoned, int player) {
   board[player].for_each_alive([&](Minion& m) {
     on_friendly_summon(m, summoned, player);
   });
+}
+
+// -----------------------------------------------------------------------------
+// Hero powers
+// -----------------------------------------------------------------------------
+
+void Battle::do_hero_powers() {
+  for (int player=0; player<2; ++player) {
+    do_hero_power(board[player].hero_power, player);
+    board[player].hero_power = HeroPower::None;
+  }
 }
 

@@ -31,6 +31,8 @@ struct Battle {
 
   // Simulate a battle
   void run();
+  // pre start: decide who goes first, run hero powers
+  void start();
 
   // Attacking
   void attack_round();

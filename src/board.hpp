@@ -9,6 +9,105 @@ using std::endl;
 using std::max;
 
 // -----------------------------------------------------------------------------
+// Array of at most N minions
+// -----------------------------------------------------------------------------
+
+template <int N>
+struct MinionArray {
+  // List of minions.
+  // Invariants:
+  //  the first size() elements are valid, all other elements have !.exists()
+  Minion minions[N];
+
+  Minion const& operator [] (int i) const {
+    return minions[i];
+  }
+
+  // Queries
+
+  int size() const {
+    for (int i=0; i<N; ++i) {
+      if (!minions[i].exists()) return i;
+    }
+    return N;
+  }
+
+  bool empty() const {
+    return !minions[0].exists();
+  }
+
+  bool full() const {
+    return minions[N-1].exists();
+  }
+
+  int total_stars() const {
+    int total = 0;
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      total += minions[i].stars();
+    }
+    return total;
+  }
+
+  // Modification
+
+  void clear() {
+    for (int i=0; i<N; ++i) {
+      minions[i].clear();
+    }
+  }
+
+  int append(Minion const& minion) {
+    for (int i=0; i<N; ++i) {
+      if (!minions[i].exists()) {
+        minions[i] = minion;
+        return i;
+      }
+    }
+    return N;
+  }
+
+  bool insert(int pos, Minion const& minion) {
+    if (full()) return false;
+    std::move_backward(&minions[pos], &minions[N-1], &minions[N]);
+    minions[pos] = minion;
+    return true;
+  }
+
+  void remove(int pos) {
+    std::move(&minions[pos+1], &minions[N], &minions[pos]);
+    minions[N-1].clear();
+  }
+
+  // Iteration
+
+  template <typename F>
+  void for_each_alive(F fun) {
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      if (!minions[i].dead()) {
+        fun(minions[i]);
+      }
+    }
+  }
+  template <typename F>
+  void for_each_alive(F fun) const {
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      if (!minions[i].dead()) {
+        fun(minions[i]);
+      }
+    }
+  }
+  template <typename F>
+  void for_each_with_pos(F fun) {
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      if (!minions[i].dead()) {
+        fun(i, minions[i]);
+      }
+    }
+  }
+
+};
+
+// -----------------------------------------------------------------------------
 // Board state (for a single player)
 // -----------------------------------------------------------------------------
 
@@ -20,12 +119,7 @@ const int BOARDSIZE = 7;
 const int NUM_EXTRA_POS = 3;
 
 // Board state
-struct Board {
-  // List of minions.
-  // Invariants:
-  //  the first size() elements are valid, all other elements have !.exists()
-  Minion minions[BOARDSIZE];
-  
+struct Board : MinionArray<BOARDSIZE> {
   int next_attacker;
 
   // extra positions to keep track of
@@ -35,49 +129,8 @@ struct Board {
 
   Board() : next_attacker(0) {}
 
-  Minion const& operator [] (int i) const {
-    return minions[i];
-  }
-
-  int size() const {
-    for (int i=0; i<BOARDSIZE; ++i) {
-      if (!minions[i].exists()) return i;
-    }
-    return BOARDSIZE;
-  }
-
-  bool empty() const {
-    return !minions[0].exists();
-  }
-
-  bool full() const {
-    return minions[BOARDSIZE-1].exists();
-  }
-
-  int total_stars() const {
-    int total = 0;
-    for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
-      total += minions[i].stars();
-    }
-    return total;
-  }
-
-  // Modification
-
-  int append(Minion minion) {
-    for (int i=0; i<BOARDSIZE; ++i) {
-      if (!minions[i].exists()) {
-        minions[i] = minion;
-        return i;
-      }
-    }
-    return BOARDSIZE;
-  }
-
-  bool insert(int pos, Minion minion) {
-    if (full()) return false;
-    std::move_backward(&minions[pos], &minions[BOARDSIZE-1], &minions[BOARDSIZE]);
-    minions[pos] = minion;
+  bool insert(int pos, Minion const& minion) {
+    if (!MinionArray::insert(pos,minion)) return false;
     if (next_attacker > pos) {
       // Note: inserting just before the next attacker makes inserted minion the next attacker
       next_attacker++;
@@ -89,8 +142,7 @@ struct Board {
   }
 
   void remove(int pos) {
-    std::move(&minions[pos+1], &minions[BOARDSIZE], &minions[pos]);
-    minions[BOARDSIZE-1].clear();
+    MinionArray::remove(pos);
     if (pos < next_attacker) {
       next_attacker--;
     }
@@ -159,31 +211,6 @@ struct Board {
       }
     }
     return -1;
-  }
-
-  template <typename F>
-  void for_each_alive(F fun) {
-    for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
-      if (!minions[i].dead()) {
-        fun(minions[i]);
-      }
-    }
-  }
-  template <typename F>
-  void for_each_alive(F fun) const {
-    for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
-      if (!minions[i].dead()) {
-        fun(minions[i]);
-      }
-    }
-  }
-  template <typename F>
-  void for_each_with_pos(F fun) {
-    for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
-      if (!minions[i].dead()) {
-        fun(i, minions[i]);
-      }
-    }
   }
 
   // Permanent buffs

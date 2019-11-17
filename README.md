@@ -33,3 +33,23 @@ The score at the end is the number of stars of the remanining minions of the fir
 The marks after the minion names indicate abilities (T for taunt, D for divine shield, P for poisonous). The *s indicate the amount of stars a minion is worth.
 
 A better user interface is a work in progress.
+
+
+FAQ
+----
+
+Q: Known limitations?
+A: The simulator doesn't handle hero powers yet.
+
+Q: How do I put in a board state
+A: Currently in C++ code, see test.cpp.
+The dream is to eventually make an image recognizer to do this automatically, but that might not be worth the effort.
+
+Q: What about Bob's tavern?
+A: Currently only actual battles are simulated, the program doesn't know about buying, selling, leveling etc.
+
+Q: What can I do with this?
+A: 
+* You can see how lucky you are
+* You can learn to better position your minions
+* (future) you can see how well your board is expected to do at a certain turn of the game

@@ -16,7 +16,7 @@ struct Battle {
   int turn; // player to attack next
   Board board[2];
   // mechs that died for each player
-  Minion mechs_that_died[2][MAX_MECHS_THAT_DIED];
+  MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
   // logging
   int verbose;
 

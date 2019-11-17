@@ -207,10 +207,8 @@ void Battle::on_death(Minion const& dead_minion, int player, int pos) {
   });
   // track mechs that died
   if (dead_minion.has_tribe(Tribe::Mech)) {
-    for (int i=0; i<MAX_MECHS_THAT_DIED; ++i) {
-      if (!mechs_that_died[player][i].exists()) {
-        mechs_that_died[player][i] = dead_minion;
-      }
+    if (!mechs_that_died[player].full()) {
+      mechs_that_died[player].append(dead_minion);
     }
   }
 }

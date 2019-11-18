@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <script>
+      var Module = {
+        onRuntimeInitialized: function() {}
+      };
+      function do_run(cmd="") {
+        var input = document.getElementById("input");
+        var out = document.getElementById("output");
+        out.textContent = Module.run(input.value + "\n" + cmd);
+      }
+      function do_trace() {
+        do_run("trace");
+      }
+      function do_help() {
+        var out = document.getElementById("output");
+        out.textContent = Module.run("help");
+      }
+    </script>
+    <script src="hsbg.js"></script>
+    <title>Hearthstone Battlegrounds Battle Simulator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+body {
+  padding: 10px;
+}
+textarea {
+  width: 100%;
+}
+</style>
+  </head>
+  <body>
+    <h1>Hearthstone Battlegrounds Battle Simulator</h1>
+<p>
+A simulator for battles in the HS battlegrounds. This program can quickly run over a battle many times, and give statistics on the results. <br>
+<a href="https://github.com/twanvl/hearthstone-battlegrounds-simulator/">More information and source code on github</a>.
+</p>
+<div>
+<textarea id="input" rows="20" cols="80">
+Board
+* Lightfang Enforcer
+* 24/26 Cave Hydra
+* Managerie Magician
+* Brann Bronzebeard
+* 36/31 Nightmare Amalgam, microbots, taunt, divine shield
+* 16/18 Imp Gang Boss
+* 39/27 Golden Kaboom Bot, microbots, taunt, divine shield
+Vs
+hero-power Neffarian
+* 7/10 Foe Reaper 4000, taunt
+* 36/31 golden Nightmare Amalgam, taunt, poison
+* 7/7 golden Kindly Grandmother
+* 5/2 Rat Pack
+* 7/7 Rat Pack
+* Pre-nerf Mama Bear
+* 6/10 Golden Vulgar Homunculus
+</textarea>
+</div>
+<div>
+  <button onclick="do_run();">Simulate</button>
+  <button onclick="do_trace();">Trace</button>
+  <button onclick="do_help();">Help</button>
+</div>
+    <pre id="output"></pre>
+  </body>
+</html>

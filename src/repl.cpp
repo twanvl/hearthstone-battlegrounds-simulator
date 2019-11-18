@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 // -----------------------------------------------------------------------------
@@ -31,7 +32,18 @@ struct REPL {
   ostream& error();
 
   // Repl
+  ostream& out;
   void repl(istream&, bool prompts);
+  REPL(ostream& out, string const& filename = "")
+    : filename(filename)
+    , out(out)
+  {}
+  REPL(istream& in, ostream& out, bool prompts, string const& filename = "")
+    : filename(filename)
+    , out(out)
+  {
+    repl(in,prompts);
+  }
 
   // Parser
   void parse_line(std::string const& line);
@@ -53,19 +65,11 @@ struct REPL {
   void do_add_minion(Minion const&);
   void do_end_input();
 };
-/*
+
 // -----------------------------------------------------------------------------
 // Parser
 // -----------------------------------------------------------------------------
 
-struct MinionFilter {
-  enum FilterType {
-    POS,TRIBE,TAUNT,ALL,LEFT,RIGHT
-  };
-  int pos;
-  Tribe tribe;
-};
-*/
 struct skip {
   const char* text;
   skip(const char* text) : text(text) {}
@@ -98,6 +102,7 @@ istream& REPL::parse_minion(istream& in, Minion& m) {
   int attack = -1, health = -1;
   bool golden = false;
   // read stats
+  in >> ws;
   char c = in.peek();
   if (isdigit(c)) {
     in >> attack >> skip("/") >> health;
@@ -190,7 +195,7 @@ istream& REPL::parse_minion(istream& in, Minion& m) {
 void REPL::repl(istream& in, bool prompt) {
   while (in.good()) {
     if (prompt) {
-      cout << "> " << flush;
+      out << "> " << flush;
     } else {
       line_number++;
     }
@@ -203,7 +208,7 @@ void REPL::repl(istream& in, bool prompt) {
 
 std::string read_command(istream& in) {
   std::string cmd;
-  in >> cmd >> ws;
+  in >> cmd;
   lower(cmd);
   if (!cmd.empty() && cmd.back() == ':') {
     cmd.pop_back();
@@ -230,12 +235,13 @@ void REPL::parse_line(std::string const& line) {
     return;
   } else if (c == '=') {
     do_end_input();
-    cout << endl;
+    out << endl;
     return;
   }
   // a command
   std::string cmd = read_command(in);
   if (!in) return;
+  in >> std::ws;
   if (cmd.empty()) {
     return;
   } else if (cmd == "quit" || cmd == "q") {
@@ -249,7 +255,7 @@ void REPL::parse_line(std::string const& line) {
   } else if (cmd == "info" || cmd == "msg" || cmd == "message" || cmd == "print" || cmd == "echo") {
     std::string msg;
     getline(in,msg);
-    cout << msg << endl;
+    out << msg << endl;
   } else if (cmd == "hp" || cmd == "hero-power" || cmd == "heropower") {
     string hp;
     getline(in,hp);
@@ -259,8 +265,8 @@ void REPL::parse_line(std::string const& line) {
     if (in >> n) {
       actual_outcomes.push_back(n);
     } else {
-      cout << "Error: Expected outcome value, usage:" << endl;
-      cout << "  actual <score>" << endl;
+      out << "Error: Expected outcome value, usage:" << endl;
+      out << "  actual <score>" << endl;
     }
   } else if (cmd == "run" || cmd == "simulate") {
     int n = DEFAULT_RUNS;
@@ -271,7 +277,7 @@ void REPL::parse_line(std::string const& line) {
   } else if (cmd == "minion") {
     Minion m;
     if (parse_minion(in,m)) {
-      cout << m << endl;
+      out << m << endl;
     }
   } else if (cmd == "step") {
     do_step();
@@ -343,63 +349,63 @@ HeroPower REPL::find_hero_power(std::string const& name) {
 
 ostream& REPL::error() {
   if (line_number) {
-    return cout << filename << ":" << line_number << ": Error: ";
+    return out << filename << ":" << line_number << ": Error: ";
   } else {
-    return cout << "Error: ";
+    return out << "Error: ";
   }
 }
 
 
 void REPL::do_help() {
-  cout << "Commands:" << endl;
-  cout << endl;
-  cout << "-- Defining the board" << endl;
-  cout << "board      = begin defining player board" << endl;
-  cout << "vs         = begin defining opposing board" << endl;
-  //cout << "swap       = swap with enemy board" << endl;
-  cout << "* <minion> = give the next minion" << endl;
-  cout << "HP <hero>  = tell that a hero power is used" << endl;
-  //cout << "secret <secret> = tell that a secret is in play" << endl;
-  //cout << "after-auras = tell the program that the stats given are after taking auras into account (default = true)" << endl;
-  cout << endl;
+  out << "Commands:" << endl;
+  out << endl;
+  out << "-- Defining the board" << endl;
+  out << "board      = begin defining player board" << endl;
+  out << "vs         = begin defining opposing board" << endl;
+  //out << "swap       = swap with enemy board" << endl;
+  out << "* <minion> = give the next minion" << endl;
+  out << "HP <hero>  = tell that a hero power is used" << endl;
+  //out << "secret <secret> = tell that a secret is in play" << endl;
+  //out << "after-auras = tell the program that the stats given are after taking auras into account (default = true)" << endl;
+  out << endl;
   /*
-  cout << "-- Modifying the board stepwise" << endl;
-  cout << "move <i> to <j> = move a minion from position i to position j" << endl;
-  cout << "sell <i> = sell minion(s) with position/condition i" << endl;
-  cout << "play <minion> [at <i>]" << endl;
-  cout << "give <i> <buff> = buff minion(s) i with one or more buffs" << endl;
+  out << "-- Modifying the board stepwise" << endl;
+  out << "move <i> to <j> = move a minion from position i to position j" << endl;
+  out << "sell <i> = sell minion(s) with position/condition i" << endl;
+  out << "play <minion> [at <i>]" << endl;
+  out << "give <i> <buff> = buff minion(s) i with one or more buffs" << endl;
   */
-  cout << endl;
-  cout << "-- Running simulations" << endl;
-  cout << "actual <i> = tell about actual outcome (used in simulation display)" << endl;
-  cout << "run [<n>]  = run n simulations (default: 100)" << endl;
-  cout << endl;
-  cout << "-- Stepping through a single battle" << endl;
-  cout << "show       = show the board state" << endl;
-  cout << "reset      = reset battle" << endl;
-  cout << "step       = do 1 attack step, or start if battle not started yet" << endl;
-  cout << "trace      = do steps until the battle ends" << endl;
-  cout << "back       = step backward. can be used to re-roll RNG" << endl;
-  cout << endl;
-  cout << "-- Other" << endl;
-  cout << "info       = show a message" << endl;
-  cout << "help       = show this help message" << endl;
-  cout << "quit       = quit the simulator" << endl;
-  //cout << "minions    = list all minions" << endl;
-  cout << endl;
-  cout << "-- Minion format" << endl;
-  cout << "Minions are specified as" << endl;
-  cout << "  [attack/health] [golden] <name>, <buff>, <buff>, .." << endl;
-  cout << "For example" << endl;
-  cout << " * 10/12 Nightmare Amalgam" << endl;
-  cout << " * Golden Murloc Tidecaller, poisonous, divine shield, taunt, windfury, +12 attack" << endl;
+  out << endl;
+  out << "-- Running simulations" << endl;
+  out << "actual <i> = tell about actual outcome (used in simulation display)" << endl;
+  out << "run [<n>]  = run n simulations (default: 100)" << endl;
+  out << endl;
+  out << "-- Stepping through a single battle" << endl;
+  out << "show       = show the board state" << endl;
+  out << "reset      = reset battle" << endl;
+  out << "step       = do 1 attack step, or start if battle not started yet" << endl;
+  out << "trace      = do steps until the battle ends" << endl;
+  out << "back       = step backward. can be used to re-roll RNG" << endl;
+  out << endl;
+  out << "-- Other" << endl;
+  out << "info       = show a message" << endl;
+  out << "help       = show this help message" << endl;
+  out << "quit       = quit the simulator" << endl;
+  //out << "minions    = list all minions" << endl;
+  out << endl;
+  out << "-- Minion format" << endl;
+  out << "Minions are specified as" << endl;
+  out << "  [attack/health] [golden] <name>, <buff>, <buff>, .." << endl;
+  out << "For example" << endl;
+  out << " * 10/12 Nightmare Amalgam" << endl;
+  out << " * Golden Murloc Tidecaller, poisonous, divine shield, taunt, windfury, +12 attack" << endl;
   /*
-  cout << endl;
-  cout << "-- Refering to a minion" << endl;
-  cout << "You can refer to a minion with an index (1 to 7), a name, a tribe, or all" << endl;
-  cout << "For example" << endl;
-  cout << "  give all +1/+1" << endl;
-  cout << "  give Mechs divine shield, windfury" << endl;
+  out << endl;
+  out << "-- Refering to a minion" << endl;
+  out << "You can refer to a minion with an index (1 to 7), a name, a tribe, or all" << endl;
+  out << "For example" << endl;
+  out << "  give all +1/+1" << endl;
+  out << "  give Mechs divine shield, windfury" << endl;
   */
 }
 
@@ -446,24 +452,28 @@ vector<int> simulate(Battle const& b, int n) {
   return results;
 }
 
-double mean(vector<int> const& x) {
-  return accumulate(x.begin(), x.end(), 0.) / x.size();
+double mean(vector<int> const& xs) {
+  // work around emscripten bug
+  //return accumulate(xs.begin(), xs.end(), 0.) / xs.size();
+  double sum = 0.;
+  for(int x : xs) sum += x;
+  return sum / xs.size();
 }
 
-void print_stats(vector<int> const& results) {
+void print_stats(ostream& out, vector<int> const& results) {
   int wins   = count_if(results.begin(), results.end(), [](int i) {return i > 0;});
   int losses = count_if(results.begin(), results.end(), [](int i) {return i < 0;});
   int ties = (int)results.size() - wins - losses;
   int n = static_cast<int>(results.size()) - 1;
-  cout << "win: " << (wins*100/n) << "%, tie: " << (ties*100)/n << "%, lose: " << (losses*100)/n << "%" << endl;
-  cout << "mean score: " << mean(results);
-  cout << ", median score: " << results[results.size()/2] << endl;
+  out << "win: " << (wins*100/n) << "%, tie: " << (ties*100)/n << "%, lose: " << (losses*100)/n << "%" << endl;
+  out << "mean score: " << mean(results);
+  out << ", median score: " << results[results.size()/2] << endl;
   int steps = 10;
-  cout << "percentiles: ";
+  out << "percentiles: ";
   for (int i=0; i <= steps; ++i) {
-    cout << results[i*n/steps] << " ";
+    out << results[i*n/steps] << " ";
   }
-  cout << endl;
+  out << endl;
 }
 
 int percentile(int i, vector<int> const& results) {
@@ -474,23 +484,23 @@ int percentile(int i, vector<int> const& results) {
 }
 
 void REPL::do_run(int n) {
-  vector<int> results = simulate(Battle(players[0], players[1]), n);
-  cout << "--------------------------------" << endl;
-  print_stats(results);
+  vector<int> results = simulate(Battle(players[0], players[1], &out), n);
+  out << "--------------------------------" << endl;
+  print_stats(out, results);
   for (int o : actual_outcomes) {
     int p =percentile(o,results);
-    cout << "actual outcome: " << o << ", is at the " << p << "-th percentile"
+    out << "actual outcome: " << o << ", is at the " << p << "-th percentile"
          << (p < 15 ? ", you got unlucky" : p > 85 ? ", you got lucky" : "") << endl;
   }
-  cout << "--------------------------------" << endl;
+  out << "--------------------------------" << endl;
   used = true;
 }
 
 void REPL::do_show() {
   if (!battle_started) {
-    step_battle = Battle(players[0], players[1]);
+    step_battle = Battle(players[0], players[1], &out);
   }
-  cout << step_battle;
+  out << step_battle;
 }
 
 void REPL::do_reset() {
@@ -501,7 +511,7 @@ void REPL::do_reset() {
 void REPL::do_step() {
   if (!battle_started) {
     history.clear();
-    step_battle = Battle(players[0], players[1]);
+    step_battle = Battle(players[0], players[1], &out);
     step_battle.verbose = 2;
     history.push_back(step_battle);
     step_battle.start();
@@ -510,10 +520,10 @@ void REPL::do_step() {
     history.push_back(step_battle);
     step_battle.attack_round();
   } else {
-    cout << "Battle is done, score: " << step_battle.score() << endl;
+    out << "Battle is done, score: " << step_battle.score() << endl;
     return;
   }
-  cout << step_battle << endl;
+  out << step_battle << endl;
 }
 
 void REPL::do_trace() {
@@ -527,7 +537,7 @@ void REPL::do_back() {
     step_battle = history.back();
     history.pop_back();
     if (history.empty()) battle_started = false;
-    cout << step_battle << endl;
+    out << step_battle << endl;
   } else {
     error() << "History is empty" << endl;
   }
@@ -537,22 +547,44 @@ void REPL::do_back() {
 // Main function
 // -----------------------------------------------------------------------------
 
+#if !__EMSCRIPTEN__
+
 int main(int argc, char const** argv) {
   if (argc <= 1) {
-    REPL repl;
-    repl.repl(cin, true);
+    REPL repl(cin, cout, true, "");
   } else {
     for (int i=1; i<argc; ++i) {
-      ifstream is(argv[i]);
-      if (!is) {
+      ifstream in(argv[i]);
+      if (!in) {
         cerr << "Error loading file " << argv[i] << endl;
         return 1;
       }
-      REPL repl;
-      repl.filename = argv[i];
-      repl.repl(is,false);
+      REPL repl(in, cout, false, argv[i]);
     }
   }
   return 0;
 }
+
+#endif
+
+// -----------------------------------------------------------------------------
+// JS interface
+// -----------------------------------------------------------------------------
+
+#if __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include <emscripten/bind.h>
+
+string run_repl(string const& input) {
+  ostringstream out;
+  istringstream in(input);
+  REPL repl(in, out, false, "input");
+  return out.str();
+}
+
+EMSCRIPTEN_BINDINGS(hsbg) {
+  emscripten::function("run", &run_repl);
+}
+
+#endif
 

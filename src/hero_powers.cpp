@@ -13,9 +13,6 @@ const char* hero_power_names[] = {"None", "Neffarian", "Ragnaros the Firelord", 
 // -----------------------------------------------------------------------------
 
 void Battle::do_hero_power(HeroPower hp, int player) {
-  if (verbose >= 2 && hp != HeroPower::None) {
-    cout << "Hero power " << hp << " for " << player << endl;
-  }
   switch(hp) {
     case HeroPower::None:
       break;

@@ -2,4 +2,5 @@
 *.exe
 *.out
 *.o
-
+web/*.js
+web/*.wasm

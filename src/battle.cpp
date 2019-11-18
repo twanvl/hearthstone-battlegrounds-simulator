@@ -1,5 +1,4 @@
 #include "battle.hpp"
-using std::cout;
 using std::endl;
 
 // -----------------------------------------------------------------------------
@@ -49,7 +48,7 @@ void Battle::single_attack_by(int player, int from) {
   int target = attacker.type == MinionType::ZappSlywick
                  ? enemy.lowest_attack_target() : enemy.random_attack_target();
   if (verbose) {
-    cout << "attack by " << player << "." << from << ", " << attacker << (cleave ? "[C]" : "") << " to " << target << endl;
+    *log << "attack by " << player << "." << from << ", " << attacker << (cleave ? "[C]" : "") << " to " << target << endl;
   }
   // Make a snapshot of the defending minion, so we know attack values
   Minion defender_snapshot = enemy.minions[target];
@@ -98,7 +97,7 @@ bool Battle::damage(int player, int pos, int amount, bool poison) {
   if (amount <= 0) return false;
   Minion& m = board[player].minions[pos];
   if (verbose >= 2) {
-    cout << "damage of " << amount << (poison ? "[P]" : "") << " to " << player << "." << pos << ", " << m << endl;
+    *log << "damage of " << amount << (poison ? "[P]" : "") << " to " << player << "." << pos << ", " << m << endl;
   }
   if (m.divine_shield) {
     m.divine_shield = false;
@@ -117,7 +116,7 @@ bool Battle::damage(int player, int pos, int amount, bool poison) {
 
 bool Battle::damage(Minion const& attacker, int player, int pos) {
   if (verbose >= 4) {
-    cout << "damage by " << attacker << " to " << player << "." << pos << endl;
+    *log << "damage by " << attacker << " to " << player << "." << pos << endl;
   }
   return damage(player, pos, attacker.attack, attacker.poison);
 }
@@ -207,7 +206,7 @@ void Battle::destroy_minion(int player, int pos) {
 
 void Battle::on_death(Minion const& dead_minion, int player, int pos) {
   if (verbose) {
-    cout << "death: " << dead_minion << " at " << player << "." << pos << endl;
+    *log << "death: " << dead_minion << " at " << player << "." << pos << endl;
   }
   do_deathrattle(dead_minion, player, pos);
   board[player].for_each_alive([&,player](Minion& m) {
@@ -275,8 +274,12 @@ void Battle::on_summoned(Minion& summoned, int player) {
 
 void Battle::do_hero_powers() {
   for (int player=0; player<2; ++player) {
-    do_hero_power(board[player].hero_power, player);
-    board[player].hero_power = HeroPower::None;
+    HeroPower& hp = board[player].hero_power;
+    if (verbose >= 2 && hp != HeroPower::None) {
+      *log << "Hero power " << hp << " for " << player << endl;
+    }
+    do_hero_power(hp, player);
+    hp = HeroPower::None;
   }
 }
 

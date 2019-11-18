@@ -19,9 +19,10 @@ struct Battle {
   MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
   // logging
   int verbose = 0;
+  ostream* log;
 
-  Battle() {}
-  Battle(Board const& b0, Board const& b1) : board{b0,b1} {
+  Battle(ostream* log = &std::cout) : log(log) {}
+  Battle(Board const& b0, Board const& b1, ostream* log = &std::cout) : board{b0,b1}, log(log) {
     recompute_auras();
   }
 

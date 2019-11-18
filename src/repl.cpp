@@ -464,14 +464,14 @@ void print_stats(ostream& out, vector<int> const& results) {
   int wins   = count_if(results.begin(), results.end(), [](int i) {return i > 0;});
   int losses = count_if(results.begin(), results.end(), [](int i) {return i < 0;});
   int ties = (int)results.size() - wins - losses;
-  int n = static_cast<int>(results.size()) - 1;
+  int n = static_cast<int>(results.size());
   out << "win: " << (wins*100/n) << "%, tie: " << (ties*100)/n << "%, lose: " << (losses*100)/n << "%" << endl;
   out << "mean score: " << mean(results);
   out << ", median score: " << results[results.size()/2] << endl;
   int steps = 10;
   out << "percentiles: ";
   for (int i=0; i <= steps; ++i) {
-    out << results[i*n/steps] << " ";
+    out << results[i*(n-1)/steps] << " ";
   }
   out << endl;
 }

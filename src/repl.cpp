@@ -484,6 +484,7 @@ int percentile(int i, vector<int> const& results) {
 }
 
 void REPL::do_run(int n) {
+  if (n <= 0) n = 1000;
   vector<int> results = simulate(Battle(players[0], players[1], &out), n);
   out << "--------------------------------" << endl;
   print_stats(out, results);

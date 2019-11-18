@@ -61,6 +61,8 @@ struct REPL {
   void do_step();
   void do_trace();
   void do_back();
+  void do_list_minions();
+  void do_list_hero_powers();
   void do_run(int runs = DEFAULT_RUNS);
   void do_add_minion(Minion const&);
   void do_end_input();
@@ -279,6 +281,10 @@ void REPL::parse_line(std::string const& line) {
     if (parse_minion(in,m)) {
       out << m << endl;
     }
+  } else if (cmd == "list" || cmd == "minions") {
+    do_list_minions();
+  } else if (cmd == "heropowers") {
+    do_list_hero_powers();
   } else if (cmd == "step") {
     do_step();
   } else if (cmd == "reset") {
@@ -391,7 +397,8 @@ void REPL::do_help() {
   out << "info       = show a message" << endl;
   out << "help       = show this help message" << endl;
   out << "quit       = quit the simulator" << endl;
-  //out << "minions    = list all minions" << endl;
+  out << "minions    = list all minions" << endl;
+  out << "heropowers = list all hero powers" << endl;
   out << endl;
   out << "-- Minion format" << endl;
   out << "Minions are specified as" << endl;
@@ -541,6 +548,18 @@ void REPL::do_back() {
     out << step_battle << endl;
   } else {
     error() << "History is empty" << endl;
+  }
+}
+
+void REPL::do_list_minions() {
+  for (int i=1; i < static_cast<int>(MinionType::COUNT); ++i) {
+    out << minion_info[i].name << endl;
+  }
+}
+
+void REPL::do_list_hero_powers() {
+  for (int i=1; i < static_cast<int>(HeroPower::COUNT); ++i) {
+    out << hero_power_names[i] << endl;
   }
 }
 

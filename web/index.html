@@ -13,9 +13,9 @@
       function do_trace() {
         do_run("trace");
       }
-      function do_help() {
+      function do_help(cmd="help") {
         var out = document.getElementById("output");
-        out.textContent = Module.run("help");
+        out.textContent = Module.run(cmd);
       }
     </script>
     <script src="hsbg.js"></script>
@@ -58,9 +58,10 @@ hero-power Neffarian
 </textarea>
 </div>
 <div>
-  <button onclick="do_run();">Simulate</button>
-  <button onclick="do_trace();">Trace</button>
-  <button onclick="do_help();">Help</button>
+  <button class="btn btn-primary" onclick="do_run();">Simulate</button>
+  <button class="btn btn-primary" onclick="do_trace();">Trace</button>
+  <button class="btn btn-info" onclick="do_help('minions');">List of minions</button>
+  <button class="btn btn-info" onclick="do_help();">Help</button>
 </div>
     <pre id="output"></pre>
   </body>

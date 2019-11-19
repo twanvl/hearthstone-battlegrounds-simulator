@@ -136,6 +136,10 @@ struct Board : MinionArray<BOARDSIZE> {
   int track_pos[3] = {-1};
   // hero power to start with
   HeroPower hero_power = HeroPower::None;
+  // level of the player (or 0 if unknown)
+  int level = 0;
+  // health of the player
+  int health = 0;
 
 
   bool insert(int pos, Minion const& minion) {

@@ -270,10 +270,24 @@ void REPL::parse_line(std::string const& line) {
       out << "Error: Expected outcome value, usage:" << endl;
       out << "  actual <score>" << endl;
     }
-  } else if (cmd == "run" || cmd == "simulate") {
+  } else if (cmd == "run" || cmd == "runs" || cmd == "simulate") {
     int n = DEFAULT_RUNS;
     in >> n;
     do_run(n);
+  } else if (cmd == "level") {
+    int n = 0;
+    if (in >> n) {
+      players[current_player].level = n;
+    } else {
+      error() << "Expected number" << endl;
+    }
+  } else if (cmd == "health") {
+    int n = 0;
+    if (in >> n) {
+      players[current_player].health = n;
+    } else {
+      error() << "Expected number" << endl;
+    }
   } else if (cmd == "show") {
     do_show();
   } else if (cmd == "minion") {
@@ -371,6 +385,8 @@ void REPL::do_help() {
   //out << "swap       = swap with enemy board" << endl;
   out << "* <minion> = give the next minion" << endl;
   out << "HP <hero>  = tell that a hero power is used" << endl;
+  out << "level <n>  = give the level of the player" << endl;
+  out << "health <n> = give the health of the player" << endl;
   //out << "secret <secret> = tell that a secret is in play" << endl;
   //out << "after-auras = tell the program that the stats given are after taking auras into account (default = true)" << endl;
   out << endl;
@@ -467,6 +483,12 @@ double mean(vector<int> const& xs) {
   return sum / xs.size();
 }
 
+double mean_damage(vector<int> const& xs, int level) {
+  double sum = 0.;
+  for(int x : xs) if (x < 0) sum += level - x;
+  return sum / xs.size();
+}
+
 void print_stats(ostream& out, vector<int> const& results) {
   int wins   = count_if(results.begin(), results.end(), [](int i) {return i > 0;});
   int losses = count_if(results.begin(), results.end(), [](int i) {return i < 0;});
@@ -499,6 +521,26 @@ void REPL::do_run(int n) {
     int p =percentile(o,results);
     out << "actual outcome: " << o << ", is at the " << p << "-th percentile"
          << (p < 15 ? ", you got unlucky" : p > 85 ? ", you got lucky" : "") << endl;
+  }
+  if (players[1].level > 0) {
+    double dmg = mean_damage(results, players[1].level);
+    out << "mean damage taken: " << dmg << endl;
+    if (players[0].health > 0) {
+      out << "expected health afterwards: " << (players[0].health - dmg);
+      int deaths = 0;
+      for(int x : results) if (x < 0 && (players[1].level-x) >= players[0].health) deaths++;
+      out << ", " << (deaths*100)/n << "% chance to die" << endl;
+    }
+  }
+  if (players[0].level > 0) {
+    double dmg = mean_damage(results, players[0].level);
+    out << "mean damage dealt: " << dmg << endl;
+    if (players[1].health > 0) {
+      out << "expected enemy health afterwards: " << (players[1].health - dmg);
+      int deaths = 0;
+      for(int x : results) if (x < 0 && (players[0].level-x) >= players[1].health) deaths++;
+      out << ", " << (deaths*100)/n << "% chance they die" << endl;
+    }
   }
   out << "--------------------------------" << endl;
   used = true;

@@ -11,6 +11,9 @@ SOURCES = $(LIB_SOURCES) repl.cpp
 hsbg: $(SOURCES) *.hpp
 	$(GXX) $(GXX_FLAGS) $(SOURCES) -O -o $@
 
+debug: $(SOURCES) *.hpp
+	$(GXX) $(GXX_FLAGS) $(SOURCES) -g -o hsbg
+
 test: $(SOURCES) *.hpp
 	$(GXX) $(GXX_FLAGS) $(LIB_SOURCES) test.cpp -g -o $@
 

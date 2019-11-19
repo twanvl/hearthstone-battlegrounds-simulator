@@ -123,28 +123,35 @@ struct OptimizeMinionOrder {
   double best_score;
   int n;
   
-  OptimizeMinionOrder(Board const& board, Board const& enemy, int runs = DEFAULT_NUM_RUNS) {
+  OptimizeMinionOrder(Board const& board, Board const& enemy, int budget = DEFAULT_NUM_RUNS) {
     n = board.size();
+    // number of permutations
+    int nperm = 1;
+    for (int i=1; i<=n; ++i) nperm *= i;
+    int runs = max(10, min(budget, budget * 50 / nperm));
+    int full_runs = budget;
     // current situation
     std::array<int,BOARDSIZE> order;
     for (int i=0; i<n; ++i) order[i] = i;
-    // optimize
-    bool current = true;
+    current_score = simulate_optimization_score(Battle(board, enemy), full_runs);
+    best_score = current_score;
+    best_order = order;
+    // optimize over all permutations
     do {
-      // check
       Battle battle(board, enemy);
       permute_minions(battle.board[0], board.minions, order.data(), n);
       double score = simulate_optimization_score(battle, runs);
-      if (current) { // first permutation = current situation
-        current = false;
-        current_score = score;
-        best_score = score;
-        best_order = order;
-      } else if (score > best_score) {
+      if (score > best_score) {
         best_score = score;
         best_order = order;
       }
     } while (std::next_permutation(order.begin(), order.begin() + n));
+    // re-check with full number of runs, also to avoid multiple-testing bias
+    if (runs < full_runs && best_score > current_score) {
+      Battle battle(board, enemy);
+      permute_minions(battle.board[0], board.minions, best_order.data(), n);
+      best_score = simulate_optimization_score(battle, runs);
+    }
   }
 };
 

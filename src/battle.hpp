@@ -21,8 +21,8 @@ struct Battle {
   int verbose = 0;
   ostream* log;
 
-  Battle(ostream* log = &std::cout) : log(log) {}
-  Battle(Board const& b0, Board const& b1, ostream* log = &std::cout) : board{b0,b1}, log(log) {
+  Battle(ostream* log = nullptr) : log(log) {}
+  Battle(Board const& b0, Board const& b1, ostream* log = nullptr) : board{b0,b1}, log(log) {
     recompute_auras();
   }
 

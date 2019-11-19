@@ -1,5 +1,6 @@
 #include "battle.hpp"
 #include <vector>
+#include <array>
 #include <algorithm>
 using std::vector;
 
@@ -109,4 +110,41 @@ int percentile(int i, vector<int> const& results) {
 // Optimization
 // -----------------------------------------------------------------------------
 
+void permute_minions(Board& board, Minion const original[], int const perm[], int n) {
+  // note: original != board.minions
+  for (int i=0; i<n; ++i) {
+    board.minions[i] = original[perm[i]];
+  }
+}
+
+struct OptimizeMinionOrder {
+  std::array<int,BOARDSIZE> best_order;
+  double current_score;
+  double best_score;
+  int n;
+  
+  OptimizeMinionOrder(Board const& board, Board const& enemy, int runs = DEFAULT_NUM_RUNS) {
+    n = board.size();
+    // current situation
+    std::array<int,BOARDSIZE> order;
+    for (int i=0; i<n; ++i) order[i] = i;
+    // optimize
+    bool current = true;
+    do {
+      // check
+      Battle battle(board, enemy);
+      permute_minions(battle.board[0], board.minions, order.data(), n);
+      double score = simulate_optimization_score(battle, runs);
+      if (current) { // first permutation = current situation
+        current = false;
+        current_score = score;
+        best_score = score;
+        best_order = order;
+      } else if (score > best_score) {
+        best_score = score;
+        best_order = order;
+      }
+    } while (std::next_permutation(order.begin(), order.begin() + n));
+  }
+};
 

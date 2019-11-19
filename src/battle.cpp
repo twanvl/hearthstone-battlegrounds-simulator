@@ -47,7 +47,7 @@ void Battle::single_attack_by(int player, int from) {
   Board& enemy = board[1-player];
   int target = attacker.type == MinionType::ZappSlywick
                  ? enemy.lowest_attack_target() : enemy.random_attack_target();
-  if (verbose) {
+  if (verbose && log) {
     *log << "attack by " << player << "." << from << ", " << attacker << (cleave ? "[C]" : "") << " to " << target << endl;
   }
   // Make a snapshot of the defending minion, so we know attack values
@@ -96,7 +96,7 @@ void Battle::on_after_friendly_attack(Minion const& attacker, int player) {
 bool Battle::damage(int player, int pos, int amount, bool poison) {
   if (amount <= 0) return false;
   Minion& m = board[player].minions[pos];
-  if (verbose >= 2) {
+  if (verbose >= 2 && log) {
     *log << "damage of " << amount << (poison ? "[P]" : "") << " to " << player << "." << pos << ", " << m << endl;
   }
   if (m.divine_shield) {
@@ -115,7 +115,7 @@ bool Battle::damage(int player, int pos, int amount, bool poison) {
 }
 
 bool Battle::damage(Minion const& attacker, int player, int pos) {
-  if (verbose >= 4) {
+  if (verbose >= 4 && log) {
     *log << "damage by " << attacker << " to " << player << "." << pos << endl;
   }
   return damage(player, pos, attacker.attack, attacker.poison);
@@ -205,7 +205,7 @@ void Battle::destroy_minion(int player, int pos) {
 */
 
 void Battle::on_death(Minion const& dead_minion, int player, int pos) {
-  if (verbose) {
+  if (verbose && log) {
     *log << "death: " << dead_minion << " at " << player << "." << pos << endl;
   }
   do_deathrattle(dead_minion, player, pos);
@@ -275,7 +275,7 @@ void Battle::on_summoned(Minion& summoned, int player) {
 void Battle::do_hero_powers() {
   for (int player=0; player<2; ++player) {
     HeroPower& hp = board[player].hero_power;
-    if (verbose >= 2 && hp != HeroPower::None) {
+    if (verbose >= 2 && log && hp != HeroPower::None) {
       *log << "Hero power " << hp << " for " << player << endl;
     }
     do_hero_power(hp, player);

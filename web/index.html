@@ -10,9 +10,6 @@
         var out = document.getElementById("output");
         out.textContent = Module.run(input.value + "\n" + cmd);
       }
-      function do_trace() {
-        do_run("trace");
-      }
       function do_help(cmd="help") {
         var out = document.getElementById("output");
         out.textContent = Module.run(cmd);
@@ -58,8 +55,9 @@ hero-power Neffarian
 </textarea>
 </div>
 <div>
-  <button class="btn btn-primary" onclick="do_run();">Simulate</button>
-  <button class="btn btn-primary" onclick="do_trace();">Trace</button>
+  <button class="btn btn-primary" onclick="do_run();" title="Run the battle many times">Simulate</button>
+  <button class="btn btn-primary" onclick="do_run('optimize');" title="Reorder minions to optimize winrate">Optimize order</button>
+  <button class="btn btn-primary" onclick="do_run('trace');">Trace</button>
   <button class="btn btn-info" onclick="do_help('minions');">List of minions</button>
   <button class="btn btn-info" onclick="do_help();">Help</button>
 </div>

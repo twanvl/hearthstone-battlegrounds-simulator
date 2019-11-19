@@ -59,6 +59,7 @@ struct REPL {
   void do_help();
   void do_quit();
   void do_board(int player);
+  void do_swap();
   void do_show();
   void do_reset();
   void do_step();
@@ -67,6 +68,7 @@ struct REPL {
   void do_list_minions();
   void do_list_hero_powers();
   void do_run(int runs = -1);
+  void do_optimize_order(int runs = -1);
   void do_add_minion(Minion const&);
   void do_end_input();
 };
@@ -257,6 +259,8 @@ void REPL::parse_line(std::string const& line) {
     do_board(0);
   } else if (cmd == "vs") {
     do_board(1);
+  } else if (cmd == "swap") {
+    do_swap();
   } else if (cmd == "info" || cmd == "msg" || cmd == "message" || cmd == "print" || cmd == "echo") {
     std::string msg;
     getline(in,msg);
@@ -277,6 +281,8 @@ void REPL::parse_line(std::string const& line) {
     int n = -1;
     in >> n;
     do_run(n);
+  } else if (cmd == "optimize") {
+    do_optimize_order();
   } else if (cmd == "runs") {
     int n = DEFAULT_NUM_RUNS;
     if (in >> n && n > 0) {
@@ -411,7 +417,7 @@ void REPL::do_help() {
   out << "-- Running simulations" << endl;
   out << "actual <i> = tell about actual outcome (used in simulation display)" << endl;
   out << "run [<n>]  = run n simulations (default: 100)" << endl;
-  //out << "optimize   = optimize the minion order to maximize win%" << endl;
+  out << "optimize   = optimize the minion order to maximize winrate" << endl;
   out << endl;
   out << "-- Stepping through a single battle" << endl;
   out << "show       = show the board state" << endl;
@@ -464,6 +470,10 @@ void REPL::do_board(int player) {
   used = false;
 }
 
+void REPL::do_swap() {
+  std::swap(players[0], players[1]);
+}
+
 void REPL::do_add_minion(Minion const& m) {
   if (players[current_player].full()) {
     error() << "Player already has a full board" << endl;
@@ -511,7 +521,7 @@ void print_damage_taken(ostream& out, int enemy_level, int health, vector<int> c
 
 void REPL::do_run(int n) {
   if (n <= 0) n = default_num_runs;
-  vector<int> results = simulate(Battle(players[0], players[1], &out), n);
+  vector<int> results = simulate(Battle(players[0], players[1]), n);
   out << "--------------------------------" << endl;
   print_stats(out, results);
   for (int o : actual_outcomes) {
@@ -520,6 +530,23 @@ void REPL::do_run(int n) {
   print_damage_taken(out, players[1].level, players[0].health, results);
   print_damage_taken(out, players[0].level, players[1].health, results, -1);
   out << "--------------------------------" << endl;
+  used = true;
+}
+
+void REPL::do_optimize_order(int n) {
+  if (n <= 0) n = default_num_runs;
+  OptimizeMinionOrder opt(players[0], players[1], n);
+  if (opt.current_score >= opt.best_score) {
+    out << "Your winrate cannot be improved by reordering your minions" << endl;
+  } else {
+    out.precision(1);
+    out.setf(std::ios::fixed, std:: ios::floatfield);
+    out << "Your winrate can be improved from " << 100*opt.current_score << "% to " << 100*opt.best_score << "% by reordering your minions:" << endl;
+    Board new_board = players[0];
+    permute_minions(new_board, players[0].minions, opt.best_order.data(), opt.n);
+    out << new_board;
+    // TODO: significance test
+  }
   used = true;
 }
 

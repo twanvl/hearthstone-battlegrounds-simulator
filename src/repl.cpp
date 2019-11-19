@@ -11,9 +11,8 @@ using namespace std;
 // REPL class
 // -----------------------------------------------------------------------------
 
-const int DEFAULT_RUNS = 1000;
-
 struct REPL {
+  // board
   Board players[2];
   int current_player = 0;
   bool used = false;
@@ -25,6 +24,9 @@ struct REPL {
   bool battle_started = false;
   Battle step_battle;
   vector<Battle> history;
+
+  // simulating
+  int default_num_runs = 1000;
 
   // error messages
   string filename;
@@ -63,7 +65,7 @@ struct REPL {
   void do_back();
   void do_list_minions();
   void do_list_hero_powers();
-  void do_run(int runs = DEFAULT_RUNS);
+  void do_run(int runs = -1);
   void do_add_minion(Minion const&);
   void do_end_input();
 };
@@ -267,13 +269,20 @@ void REPL::parse_line(std::string const& line) {
     if (in >> n) {
       actual_outcomes.push_back(n);
     } else {
-      out << "Error: Expected outcome value, usage:" << endl;
-      out << "  actual <score>" << endl;
+      error() << "Expected outcome value, usage:" << endl
+              << "  actual <score>" << endl;
     }
-  } else if (cmd == "run" || cmd == "runs" || cmd == "simulate") {
-    int n = DEFAULT_RUNS;
+  } else if (cmd == "run" || cmd == "simulate") {
+    int n = -1;
     in >> n;
     do_run(n);
+  } else if (cmd == "runs") {
+    int n = 1000;
+    if (in >> n) {
+      default_num_runs = n;
+    } else {
+      error() << "Please specify number of runs" << endl;
+    }
   } else if (cmd == "level") {
     int n = 0;
     if (in >> n) {
@@ -396,11 +405,12 @@ void REPL::do_help() {
   out << "sell <i> = sell minion(s) with position/condition i" << endl;
   out << "play <minion> [at <i>]" << endl;
   out << "give <i> <buff> = buff minion(s) i with one or more buffs" << endl;
-  */
   out << endl;
+  */
   out << "-- Running simulations" << endl;
   out << "actual <i> = tell about actual outcome (used in simulation display)" << endl;
   out << "run [<n>]  = run n simulations (default: 100)" << endl;
+  //out << "optimize   = optimize the minion order to maximize win%" << endl;
   out << endl;
   out << "-- Stepping through a single battle" << endl;
   out << "show       = show the board state" << endl;
@@ -483,9 +493,9 @@ double mean(vector<int> const& xs) {
   return sum / xs.size();
 }
 
-double mean_damage(vector<int> const& xs, int level) {
+double mean_damage(vector<int> const& xs, int level, int sign = 1) {
   double sum = 0.;
-  for(int x : xs) if (x < 0) sum += level - x;
+  for(int x : xs) if (sign*x < 0) sum += level - sign*x;
   return sum / xs.size();
 }
 
@@ -513,7 +523,7 @@ int percentile(int i, vector<int> const& results) {
 }
 
 void REPL::do_run(int n) {
-  if (n <= 0) n = 1000;
+  if (n <= 0) n = default_num_runs;
   vector<int> results = simulate(Battle(players[0], players[1], &out), n);
   out << "--------------------------------" << endl;
   print_stats(out, results);
@@ -533,12 +543,12 @@ void REPL::do_run(int n) {
     }
   }
   if (players[0].level > 0) {
-    double dmg = mean_damage(results, players[0].level);
+    double dmg = mean_damage(results, players[0].level, -1);
     out << "mean damage dealt: " << dmg << endl;
     if (players[1].health > 0) {
       out << "expected enemy health afterwards: " << (players[1].health - dmg);
       int deaths = 0;
-      for(int x : results) if (x < 0 && (players[0].level-x) >= players[1].health) deaths++;
+      for(int x : results) if (-x < 0 && (players[0].level+x) >= players[1].health) deaths++;
       out << ", " << (deaths*100)/n << "% chance they die" << endl;
     }
   }

@@ -1,4 +1,5 @@
 #include "battle.hpp"
+#include "simulation.hpp"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -26,7 +27,7 @@ struct REPL {
   vector<Battle> history;
 
   // simulating
-  int default_num_runs = 1000;
+  int default_num_runs = DEFAULT_NUM_RUNS;
 
   // error messages
   string filename;
@@ -277,22 +278,22 @@ void REPL::parse_line(std::string const& line) {
     in >> n;
     do_run(n);
   } else if (cmd == "runs") {
-    int n = 1000;
-    if (in >> n) {
+    int n = DEFAULT_NUM_RUNS;
+    if (in >> n && n > 0) {
       default_num_runs = n;
     } else {
       error() << "Please specify number of runs" << endl;
     }
   } else if (cmd == "level") {
     int n = 0;
-    if (in >> n) {
+    if (in >> n && n >= 0) {
       players[current_player].level = n;
     } else {
       error() << "Expected number" << endl;
     }
   } else if (cmd == "health") {
     int n = 0;
-    if (in >> n) {
+    if (in >> n && n >= 0) {
       players[current_player].health = n;
     } else {
       error() << "Expected number" << endl;
@@ -472,40 +473,16 @@ void REPL::do_add_minion(Minion const& m) {
   }
 }
 
-vector<int> simulate(Battle const& b, int n) {
-  vector<int> results;
-  results.reserve(n);
-  for (int i=0; i<n; ++i) {
-    Battle copy = b;
-    copy.verbose = 0;
-    copy.run();
-    results.push_back(copy.score());
-  }
-  sort(results.begin(), results.end());
-  return results;
-}
-
-double mean(vector<int> const& xs) {
-  // work around emscripten bug
-  //return accumulate(xs.begin(), xs.end(), 0.) / xs.size();
-  double sum = 0.;
-  for(int x : xs) sum += x;
-  return sum / xs.size();
-}
-
-double mean_damage(vector<int> const& xs, int level, int sign = 1) {
-  double sum = 0.;
-  for(int x : xs) if (sign*x < 0) sum += level - sign*x;
-  return sum / xs.size();
-}
-
 void print_stats(ostream& out, vector<int> const& results) {
-  int wins   = count_if(results.begin(), results.end(), [](int i) {return i > 0;});
-  int losses = count_if(results.begin(), results.end(), [](int i) {return i < 0;});
-  int ties = (int)results.size() - wins - losses;
-  int n = static_cast<int>(results.size());
-  out << "win: " << (wins*100/n) << "%, tie: " << (ties*100)/n << "%, lose: " << (losses*100)/n << "%" << endl;
-  out << "mean score: " << mean(results);
+  ScoreSummary summary(results);
+  int n = summary.num_runs();
+  out.precision(1);
+  out.setf(std::ios::fixed, std:: ios::floatfield);
+  out << "win: " << 100*summary.win_rate() << "%, ";
+  out << "tie: " << 100*summary.draw_rate() << "%, ";
+  out << "lose: " << 100*summary.loss_rate() << "%" << endl;
+  out.precision(3);
+  out << "mean score: " << summary.mean_score();
   out << ", median score: " << results[results.size()/2] << endl;
   int steps = 10;
   out << "percentiles: ";
@@ -514,12 +491,22 @@ void print_stats(ostream& out, vector<int> const& results) {
   }
   out << endl;
 }
+void print_outcome_percentile(ostream& out, int outcome, vector<int> const& results) {
+  int p = percentile(outcome,results);
+  out << "actual outcome: " << outcome << ", is at the " << p << "-th percentile"
+      << (p < 15 ? ", you got unlucky" : p > 85 ? ", you got lucky" : "") << endl;
+}
 
-int percentile(int i, vector<int> const& results) {
-  auto bounds = equal_range(results.begin(), results.end(), i);
-  int a = static_cast<int>(bounds.first - results.begin());
-  int b = static_cast<int>(bounds.second - results.begin());
-  return 100 * (a + b) / 2 / (results.size() - 1);
+void print_damage_taken(ostream& out, int enemy_level, int health, vector<int> const& results, int sign = 1) {
+  if (enemy_level <= 0) return;
+  double dmg = mean_damage_taken(results, enemy_level, sign);
+  out.precision(3);
+  out << "mean damage " << (sign == 1 ? "taken" : "dealt") << ": " << dmg << endl;
+  if (health > 0) {
+    if (sign < 0) out << "their ";
+    out << "expected health afterwards: " << (health - dmg);
+    out << ", " << death_rate(results, enemy_level, health, sign) << "% chance to die" << endl;
+  }
 }
 
 void REPL::do_run(int n) {
@@ -528,30 +515,10 @@ void REPL::do_run(int n) {
   out << "--------------------------------" << endl;
   print_stats(out, results);
   for (int o : actual_outcomes) {
-    int p =percentile(o,results);
-    out << "actual outcome: " << o << ", is at the " << p << "-th percentile"
-         << (p < 15 ? ", you got unlucky" : p > 85 ? ", you got lucky" : "") << endl;
+    print_outcome_percentile(out, o, results);
   }
-  if (players[1].level > 0) {
-    double dmg = mean_damage(results, players[1].level);
-    out << "mean damage taken: " << dmg << endl;
-    if (players[0].health > 0) {
-      out << "expected health afterwards: " << (players[0].health - dmg);
-      int deaths = 0;
-      for(int x : results) if (x < 0 && (players[1].level-x) >= players[0].health) deaths++;
-      out << ", " << (deaths*100)/n << "% chance to die" << endl;
-    }
-  }
-  if (players[0].level > 0) {
-    double dmg = mean_damage(results, players[0].level, -1);
-    out << "mean damage dealt: " << dmg << endl;
-    if (players[1].health > 0) {
-      out << "expected enemy health afterwards: " << (players[1].health - dmg);
-      int deaths = 0;
-      for(int x : results) if (-x < 0 && (players[0].level+x) >= players[1].health) deaths++;
-      out << ", " << (deaths*100)/n << "% chance they die" << endl;
-    }
-  }
+  print_damage_taken(out, players[1].level, players[0].health, results);
+  print_damage_taken(out, players[0].level, players[1].health, results, -1);
   out << "--------------------------------" << endl;
   used = true;
 }

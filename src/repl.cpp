@@ -385,8 +385,8 @@ void REPL::do_help() {
   //out << "swap       = swap with enemy board" << endl;
   out << "* <minion> = give the next minion" << endl;
   out << "HP <hero>  = tell that a hero power is used" << endl;
-  out << "level <n>  = give the level of the player" << endl;
-  out << "health <n> = give the health of the player" << endl;
+  out << "level <n>  = give the level of a player" << endl;
+  out << "health <n> = give the health of a player" << endl;
   //out << "secret <secret> = tell that a secret is in play" << endl;
   //out << "after-auras = tell the program that the stats given are after taking auras into account (default = true)" << endl;
   out << endl;

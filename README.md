@@ -51,6 +51,8 @@ The program can also be used in interactive mode, by starting it without any arg
     vs         = begin defining opposing board
     * <minion> = give the next minion
     HP <hero>  = tell that a hero power is used
+    level <n>  = give the level of a player
+    health <n> = give the health of a player
 
     -- Running simulations
     actual <i> = tell about actual outcome (used in simulation display)

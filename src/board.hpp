@@ -133,7 +133,7 @@ struct Board : MinionArray<BOARDSIZE> {
 
   // extra positions to keep track of
   // we need enough for cleave attacks
-  int track_pos[3] = {-1};
+  int track_pos[NUM_EXTRA_POS] = {-1};
   // hero power to start with
   HeroPower hero_power = HeroPower::None;
   // level of the player (or 0 if unknown)

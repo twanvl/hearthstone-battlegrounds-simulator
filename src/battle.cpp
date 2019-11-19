@@ -196,14 +196,6 @@ void Battle::check_for_deaths() {
   }
 }
 
-/*
-void Battle::destroy_minion(int player, int pos) {
-  Minion m = board[player].minions[pos]; // copy
-  board[player].remove(pos);
-  on_death(m, player, pos);
-}
-*/
-
 void Battle::on_death(Minion const& dead_minion, int player, int pos) {
   if (verbose && log) {
     *log << "death: " << dead_minion << " at " << player << "." << pos << endl;

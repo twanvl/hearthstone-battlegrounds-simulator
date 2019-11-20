@@ -5,7 +5,7 @@ GXX = g++
 GXX_FLAGS = -Wall -std=c++11
 EMCC = emcc
 EMCC_FLAGS = $(GXX_FLAGS) --bind -O2 -s FILESYSTEM=0
-LIB_SOURCES = minion_info.cpp minion_events.cpp hero_powers.cpp battle.cpp
+LIB_SOURCES = minion_info.cpp minion_events.cpp hero_powers.cpp battle.cpp xoroshiro128plus.cpp
 SOURCES = $(LIB_SOURCES) repl.cpp
 
 hsbg: $(SOURCES) *.hpp

@@ -120,9 +120,10 @@ struct MinionArray {
 // Board state (for a single player)
 // -----------------------------------------------------------------------------
 
-inline int random(int n) {
-  return std::rand() % n;
+namespace randoms {
+  int random(int n);
 }
+using namespace randoms;
 
 const int BOARDSIZE = 7;
 const int NUM_EXTRA_POS = 3;

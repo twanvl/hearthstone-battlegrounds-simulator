@@ -10,65 +10,69 @@ using std::vector;
 
 const int DEFAULT_NUM_RUNS = 1000;
 
-inline int simulate_single(Battle const& battle) {
-  Battle copy(battle);
-  copy.verbose = 0;
-  copy.run();
-  return copy.score();
-}
-
-vector<int> simulate(Battle const& b, int n = DEFAULT_NUM_RUNS) {
-  vector<int> results;
-  results.reserve(n);
-  for (int i=0; i<n; ++i) {
-    results.push_back(simulate_single(b));
-  }
-  std::sort(results.begin(), results.end());
-  return results;
-}
-
 struct ScoreSummary {
-  int total_score = 0;
-  int num_wins = 0;
-  int num_draws = 0;
-  int num_losses = 0;
+  int num_runs = 0;
+  int total_stars[2] = {0}; // #stars by which player i has won
+  int damage_taken[2] = {0};
+  int num_wins[2] = {0};
+  int num_deaths[2] = {0};
 
-  ScoreSummary() {}
-  ScoreSummary(vector<int> const& scores) {
-    add_scores(scores);
+  int num_draws() const {
+    return num_runs - num_wins[0] - num_wins[1];
+  }
+  double draw_rate() const {
+    return (double)num_draws() / num_runs;
+  }
+  double win_rate(int player) const {
+    return (double)num_wins[player] / num_runs;
+  }
+  double balanced_win_rate(int player=0) const {
+    return win_rate(player) + draw_rate() * 0.5;
+  }
+  double death_rate(int player) const {
+    return (double)num_deaths[player] / num_runs;
+  }
+  double mean_damage_taken(int player) const {
+    return (double)damage_taken[player] / num_runs;
+  }
+  double mean_score() const {
+    return (double)(total_stars[0] - total_stars[1]) / num_runs;
   }
 
-  int num_runs() const { return num_wins + num_draws + num_losses; }
-  double win_rate() const { return (double)num_wins / num_runs(); }
-  double draw_rate() const { return (double)num_draws / num_runs(); }
-  double loss_rate() const { return (double)num_losses / num_runs(); }
-  double mean_score() const { return (double)total_score / num_runs(); }
-  // for optimization use this score:
-  inline double optimization_score() {
-    return win_rate() + draw_rate() * 0.5;
-  }
-
-  void add_score(int score) {
-    total_score += score;
-    if (score > 0)       num_wins++;
-    else if (score == 0) num_draws++;
-    else                 num_losses++;
-  }
-  void add_scores(vector<int> const& scores) {
-    for (auto x : scores) add_score(x);
+  void add_run(Battle const& b) {
+    num_runs++;
+    int stars[2] = {b.board[0].total_stars(), b.board[1].total_stars()};
+    for (int player=0; player<2; ++player) {
+      // if player has stars remaining on the board, they have won
+      if (stars[player] > 0) {
+        num_wins[player]++;
+        total_stars[player] += stars[player];
+        int dmg = stars[player] + b.board[player].level;
+        damage_taken[1-player] += dmg;
+        if (dmg >= b.board[1-player].health) {
+          num_deaths[1-player]++;
+        }
+      }
+    }
   }
 };
 
-ScoreSummary simulate_summary(Battle const& battle, int runs = DEFAULT_NUM_RUNS) {
-  ScoreSummary results;
-  for (int i=0; i<runs; ++i) {
-    results.add_score(simulate_single(battle));
-  }
-  return results;
+inline int simulate_single(Board const& player0, Board const& player1, ScoreSummary& stats) {
+  Battle battle(player0, player1);
+  battle.run();
+  stats.add_run(battle);
+  return battle.score();
 }
 
-double simulate_optimization_score(Battle const& battle, int runs = DEFAULT_NUM_RUNS) {
-  return simulate_summary(battle,runs).optimization_score();
+ScoreSummary simulate(Board const& player0, Board const& player1, int n = DEFAULT_NUM_RUNS, vector<int>* out = nullptr) {
+  ScoreSummary stats;
+  if (out) out->reserve(out->size() + n);
+  for (int i=0; i<n; ++i) {
+    int score = simulate_single(player0, player1, stats);
+    if (out) out->push_back(score);
+  }
+  if (out) std::sort(out->begin(), out->end());
+  return stats;
 }
 
 // -----------------------------------------------------------------------------
@@ -107,6 +111,69 @@ int percentile(int i, vector<int> const& results) {
 }
 
 // -----------------------------------------------------------------------------
+// Optimization objectives
+// -----------------------------------------------------------------------------
+
+enum class Objective {
+  Score,
+  WinRate,
+  DamageTaken,
+  DeathRate,
+};
+const int NUM_OBJECTIVES=4;
+
+double objective_value(Objective objective, ScoreSummary const& stats) {
+  switch(objective) {
+    case Objective::Score:       return stats.mean_score();
+    case Objective::WinRate:     return stats.balanced_win_rate(0);
+    case Objective::DamageTaken: return -stats.mean_damage_taken(0);
+    case Objective::DeathRate:   return -stats.death_rate(0);
+    default: return 0;
+  }
+}
+
+const char* name(Objective objective) {
+  switch(objective) {
+    case Objective::Score:       return "star difference";
+    case Objective::WinRate:     return "win rate";
+    case Objective::DamageTaken: return "damage taken";
+    case Objective::DeathRate:   return "death rate";
+    default: return "";
+  }
+}
+
+struct Percentage {
+  double p;
+};
+// output a number between 0 and 1 as a percentage
+inline Percentage percentage(double p) { return {p}; }
+inline ostream& operator << (ostream& out, Percentage p) {
+  out.setf(std::ios::fixed, std:: ios::floatfield);
+  out.precision(1);
+  return out << (100*p.p) << "%";
+}
+
+void display_objective_value(ostream& out, Objective objective, double score) {
+  out.setf(std::ios::fixed, std:: ios::floatfield);
+  switch(objective) {
+    case Objective::Score:
+      out.precision(3);
+      out << score;
+      return;
+    case Objective::WinRate:
+      out << percentage(score);
+      return;
+    case Objective::DamageTaken:
+      out.precision(3);
+      out << -score;
+      return;
+    case Objective::DeathRate:
+      out << percentage(-score);
+      return;
+  }
+};
+
+// -----------------------------------------------------------------------------
 // Optimization
 // -----------------------------------------------------------------------------
 
@@ -116,6 +183,11 @@ void permute_minions(Board& board, Minion const original[], int const perm[], in
     board.minions[i] = original[perm[i]];
   }
 }
+inline Board permute_minions(Board const& original, int const perm[], int n) {
+  Board board = original;
+  permute_minions(board, original.minions, perm, n);
+  return board;
+}
 
 struct OptimizeMinionOrder {
   std::array<int,BOARDSIZE> best_order;
@@ -123,7 +195,7 @@ struct OptimizeMinionOrder {
   double best_score;
   int n;
   
-  OptimizeMinionOrder(Board const& board, Board const& enemy, int budget = DEFAULT_NUM_RUNS) {
+  OptimizeMinionOrder(Board const& board, Board const& enemy, Objective objective, int budget = DEFAULT_NUM_RUNS) {
     n = board.size();
     // number of permutations
     int nperm = 1;
@@ -133,14 +205,13 @@ struct OptimizeMinionOrder {
     // current situation
     std::array<int,BOARDSIZE> order;
     for (int i=0; i<n; ++i) order[i] = i;
-    current_score = simulate_optimization_score(Battle(board, enemy), full_runs);
+    current_score = objective_value(objective, simulate(board, enemy, full_runs));
     best_score = current_score;
     best_order = order;
     // optimize over all permutations
     do {
-      Battle battle(board, enemy);
-      permute_minions(battle.board[0], board.minions, order.data(), n);
-      double score = simulate_optimization_score(battle, runs);
+      Board const& permuted = permute_minions(board, order.data(), n);
+      double score = objective_value(objective, simulate(permuted, enemy, runs));
       if (score > best_score) {
         best_score = score;
         best_order = order;
@@ -148,9 +219,8 @@ struct OptimizeMinionOrder {
     } while (std::next_permutation(order.begin(), order.begin() + n));
     // re-check with full number of runs, also to avoid multiple-testing bias
     if (runs < full_runs && best_score > current_score) {
-      Battle battle(board, enemy);
-      permute_minions(battle.board[0], board.minions, best_order.data(), n);
-      best_score = simulate_optimization_score(battle, runs);
+      Board const& permuted = permute_minions(board, best_order.data(), n);
+      best_score = objective_value(objective, simulate(permuted, enemy, full_runs));
     }
   }
 };

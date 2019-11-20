@@ -28,6 +28,7 @@ struct REPL {
 
   // simulating
   int default_num_runs = DEFAULT_NUM_RUNS;
+  Objective optimization_objective = Objective::DamageTaken;
 
   // error messages
   string filename;
@@ -54,6 +55,7 @@ struct REPL {
   void parse_add_minion(istream&);
   MinionType find_minion(std::string const& name);
   HeroPower find_hero_power(std::string const& name);
+  Objective find_objective(std::string const& name);
 
   // Commands
   void do_help();
@@ -67,6 +69,7 @@ struct REPL {
   void do_back();
   void do_list_minions();
   void do_list_hero_powers();
+  void do_list_objectives();
   void do_run(int runs = -1);
   void do_optimize_order(int runs = -1);
   void do_add_minion(Minion const&);
@@ -187,6 +190,13 @@ istream& REPL::parse_minion(istream& in, Minion& m) {
       m.windfury = true;
     } else if (word == "microbots") {
       m.add_deathrattle_microbots();
+    } else if (word == "annoy" || word=="annoy-o-module") {
+      m.taunt = true;
+      m.divine_shield = true;
+      m.buff(2,4);
+    } else if (word == "replicating-menace") {
+      m.buff(3,1);
+      m.add_deathrattle_microbots(3);
     } else if (word == "+") {
       // ignore
     } else {
@@ -281,6 +291,11 @@ void REPL::parse_line(std::string const& line) {
     int n = -1;
     in >> n;
     do_run(n);
+  } else if (cmd == "objective") {
+    std::string obj_name;
+    getline(in,obj_name);
+    Objective obj = find_objective(obj_name);
+    optimization_objective = obj;
   } else if (cmd == "optimize") {
     do_optimize_order();
   } else if (cmd == "runs") {
@@ -315,6 +330,8 @@ void REPL::parse_line(std::string const& line) {
     do_list_minions();
   } else if (cmd == "heropowers") {
     do_list_hero_powers();
+  } else if (cmd == "objectives") {
+    do_list_objectives();
   } else if (cmd == "step") {
     do_step();
   } else if (cmd == "reset") {
@@ -379,6 +396,16 @@ HeroPower REPL::find_hero_power(std::string const& name) {
   return HeroPower::None;
 }
 
+Objective REPL::find_objective(std::string const& name) {
+  for (int i=0; i < NUM_OBJECTIVES; ++i) {
+    if (equal_names(name,::name(static_cast<Objective>(i)))) {
+      return static_cast<Objective>(i);
+    }
+  }
+  error() << "Unknown objective: " << name << endl;
+  return Objective::DamageTaken;
+}
+
 // -----------------------------------------------------------------------------
 // Commands
 // -----------------------------------------------------------------------------
@@ -417,7 +444,8 @@ void REPL::do_help() {
   out << "-- Running simulations" << endl;
   out << "actual <i> = tell about actual outcome (used in simulation display)" << endl;
   out << "run [<n>]  = run n simulations (default: 100)" << endl;
-  out << "optimize   = optimize the minion order to maximize winrate" << endl;
+  out << "optimize   = optimize the minion order to maximize some objective" << endl;
+  out << "objective  = set the optimization objective (default: minimize damage taken)" << endl;
   out << endl;
   out << "-- Stepping through a single battle" << endl;
   out << "show       = show the board state" << endl;
@@ -432,6 +460,7 @@ void REPL::do_help() {
   out << "quit       = quit the simulator" << endl;
   out << "minions    = list all minions" << endl;
   out << "heropowers = list all hero powers" << endl;
+  out << "objectives = list all optimization objectives" << endl;
   out << endl;
   out << "-- Minion format" << endl;
   out << "Minions are specified as" << endl;
@@ -483,66 +512,64 @@ void REPL::do_add_minion(Minion const& m) {
   }
 }
 
-void print_stats(ostream& out, vector<int> const& results) {
-  ScoreSummary summary(results);
-  int n = summary.num_runs();
-  out.precision(1);
-  out.setf(std::ios::fixed, std:: ios::floatfield);
-  out << "win: " << 100*summary.win_rate() << "%, ";
-  out << "tie: " << 100*summary.draw_rate() << "%, ";
-  out << "lose: " << 100*summary.loss_rate() << "%" << endl;
+void print_stats(ostream& out, ScoreSummary const& stats, vector<int> const& results) {
+  out << "win: " << percentage(stats.win_rate(0)) << ", ";
+  out << "tie: " << percentage(stats.draw_rate()) << ", ";
+  out << "lose: " << percentage(stats.win_rate(1)) << endl;
   out.precision(3);
-  out << "mean score: " << summary.mean_score();
+  out << "mean score: " << stats.mean_score();
   out << ", median score: " << results[results.size()/2] << endl;
   int steps = 10;
+  int n = (int)results.size() - 1;
   out << "percentiles: ";
   for (int i=0; i <= steps; ++i) {
     out << results[i*(n-1)/steps] << " ";
   }
   out << endl;
 }
+
 void print_outcome_percentile(ostream& out, int outcome, vector<int> const& results) {
   int p = percentile(outcome,results);
   out << "actual outcome: " << outcome << ", is at the " << p << "-th percentile"
       << (p < 15 ? ", you got unlucky" : p > 85 ? ", you got lucky" : "") << endl;
 }
 
-void print_damage_taken(ostream& out, int enemy_level, int health, vector<int> const& results, int sign = 1) {
-  if (enemy_level <= 0) return;
-  double dmg = mean_damage_taken(results, enemy_level, sign);
+void print_damage_taken(ostream& out, ScoreSummary const& stats, int health, int player) {
+  double dmg = stats.mean_damage_taken(player);
   out.precision(3);
-  out << "mean damage " << (sign == 1 ? "taken" : "dealt") << ": " << dmg << endl;
+  out << "mean damage " << (player == 0 ? "taken" : "dealt") << ": " << dmg << endl;
   if (health > 0) {
-    if (sign < 0) out << "their ";
-    out << "expected health afterwards: " << (health - dmg);
-    out.precision(1);
-    out << ", " << 100*death_rate(results, enemy_level, health, sign) << "% chance to die" << endl;
+    out << (player == 0 ? "your" : "their") << " expected health afterwards: " << (health - dmg);
+    out << ", " << percentage(stats.death_rate(player)) << " chance to die" << endl;
   }
 }
 
 void REPL::do_run(int n) {
   if (n <= 0) n = default_num_runs;
-  vector<int> results = simulate(Battle(players[0], players[1]), n);
+  vector<int> results;
+  ScoreSummary stats = simulate(players[0], players[1], n, &results);
   out << "--------------------------------" << endl;
-  print_stats(out, results);
+  print_stats(out, stats, results);
   for (int o : actual_outcomes) {
     print_outcome_percentile(out, o, results);
   }
-  print_damage_taken(out, players[1].level, players[0].health, results);
-  print_damage_taken(out, players[0].level, players[1].health, results, -1);
+  print_damage_taken(out, stats, players[0].health, 0);
+  print_damage_taken(out, stats, players[1].health, 1);
   out << "--------------------------------" << endl;
   used = true;
 }
 
 void REPL::do_optimize_order(int n) {
   if (n <= 0) n = default_num_runs;
-  OptimizeMinionOrder opt(players[0], players[1], n);
+  OptimizeMinionOrder opt(players[0], players[1], optimization_objective, n);
   if (opt.current_score >= opt.best_score) {
-    out << "Your winrate cannot be improved by reordering your minions" << endl;
+    out << "Your " << name(optimization_objective) << " cannot be improved by reordering your minions" << endl;
   } else {
-    out.precision(1);
-    out.setf(std::ios::fixed, std:: ios::floatfield);
-    out << "Your winrate can be improved from " << 100*opt.current_score << "% to " << 100*opt.best_score << "% by reordering your minions:" << endl;
+    out << "Your " << name(optimization_objective) << " can be improved from ";
+    display_objective_value(out, optimization_objective, opt.current_score);
+    out << " to ";
+    display_objective_value(out, optimization_objective, opt.best_score);
+    out << " by reordering your minions:" << endl;
     Board new_board = players[0];
     permute_minions(new_board, players[0].minions, opt.best_order.data(), opt.n);
     out << new_board;
@@ -608,6 +635,12 @@ void REPL::do_list_minions() {
 void REPL::do_list_hero_powers() {
   for (int i=1; i < static_cast<int>(HeroPower::COUNT); ++i) {
     out << hero_power_names[i] << endl;
+  }
+}
+
+void REPL::do_list_objectives() {
+  for (int i=0; i < NUM_OBJECTIVES; ++i) {
+    out << name(static_cast<Objective>(i)) << endl;
   }
 }
 

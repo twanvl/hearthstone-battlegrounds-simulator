@@ -515,7 +515,8 @@ void print_damage_taken(ostream& out, int enemy_level, int health, vector<int> c
   if (health > 0) {
     if (sign < 0) out << "their ";
     out << "expected health afterwards: " << (health - dmg);
-    out << ", " << death_rate(results, enemy_level, health, sign) << "% chance to die" << endl;
+    out.precision(1);
+    out << ", " << 100*death_rate(results, enemy_level, health, sign) << "% chance to die" << endl;
   }
 }
 
@@ -556,6 +557,7 @@ void REPL::do_show() {
   }
   out << step_battle;
 }
+
 
 void REPL::do_reset() {
   battle_started = false;

@@ -40,7 +40,7 @@ const MinionInfo minion_info[] = {
   {"Metaltooth Leaper",2,Tribe::Mech,3,3,false,false,false,false},
   {"Mounted Raptor",2,Tribe::Beast,3,2,false,false,false,false},
   {"Murloc Warleader",2,Tribe::Murloc,3,3,false,false,false,false},
-  {"Nethrezim Overseer",2,Tribe::Demon,2,4,false,false,false,false},
+  {"Nathrezim Overseer",2,Tribe::Demon,2,4,false,false,false,false},
   {"Nightmare Amalgam",2,Tribe::All,3,4,false,false,false,false},
   {"Old Murk-Eye",2,Tribe::Murloc,2,4,false,false,false,false},
   {"Pogo-Hopper",2,Tribe::Mech,1,1,false,false,false,false},

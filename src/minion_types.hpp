@@ -30,7 +30,7 @@ enum class MinionType : unsigned char {
   MetaltoothLeaper,
   MountedRaptor,
   MurlocWarleader,
-  NethrezimOverseer,
+  NathrezimOverseer,
   NightmareAmalgam,
   OldMurkEye,
   PogoHopper,

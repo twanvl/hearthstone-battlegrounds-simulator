@@ -69,7 +69,7 @@ Battle game1(int turn) {
     enemy.minions[1].buff(3,3);
     enemy.minions[2] = Minion(MinionType::Zoobot);
     enemy.minions[3] = Minion(MinionType::Voidwalker);
-    enemy.minions[4] = Minion(MinionType::NethrezimOverseer);
+    enemy.minions[4] = Minion(MinionType::NathrezimOverseer);
     // outcome: 0
   } else if (turn == 6) {
     player.minions[0] = Minion(MinionType::KaboomBot);

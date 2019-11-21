@@ -25,7 +25,7 @@ const MinionInfo minion_info[] = {
   {"Selfless Hero",1,Tribe::None,2,1,false,false,false,false},
   {"Voidwalker",1,Tribe::Demon,1,3,true,false,false,false},
   {"Vulgar Homunculus",1,Tribe::Demon,2,4,true,false,false,false},
-  {"Wrath Weaver",1,Tribe::Demon,1,1,false,false,false,false},
+  {"Wrath Weaver",1,Tribe::None,1,1,false,false,false,false},
   // Tier 1 tokens
   {"Tabby Cat",1,Tribe::Beast,1,1,false,false,false,false},
   {"Jo-E Bot",1,Tribe::Mech,1,1,false,false,false,false},

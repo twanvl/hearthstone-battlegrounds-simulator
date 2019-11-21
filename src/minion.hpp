@@ -114,6 +114,14 @@ struct Minion {
     this->deathrattle_microbots = min(this->deathrattle_microbots+n,7);
     return *this;
   }
+  Minion& add_deathrattle_golden_microbots(int n=3) {
+    this->deathrattle_golden_microbots = min(this->deathrattle_golden_microbots+n,7);
+    return *this;
+  }
+  Minion& add_deathrattle_plants(int n=2) {
+    this->deathrattle_plants = min(this->deathrattle_plants+n,7);
+    return *this;
+  }
 };
 
 inline ostream& operator << (ostream& s, Minion minion) {

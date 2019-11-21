@@ -67,7 +67,7 @@ Board
 * Nightmare Amalgam, +8/+2
 * Lightfang Enforcer
 * Imp Gang Boss, +2/+2
-Vs AFK
+Vs # AFK
 * Kaboom Bot
 * Kaboom Bot
 * Cobalt Guardian, divine shield
@@ -112,7 +112,7 @@ Vs
 * GoldrinnTheGreatWolf
 * PilotedShredder
 * golden AlleyCat
-* 5/6 NightmareAmalgam with taunt
+* 5/6 NightmareAmalgam, taunt
 * Houndmaster
 Actual: 17
 Show

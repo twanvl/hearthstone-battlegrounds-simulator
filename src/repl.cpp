@@ -133,6 +133,7 @@ void REPL::parse_line(StringParser& in) {
     in.skip_ws();
     out << in.str << endl;
   } else if (in.match("hp") || in.match("hero-power")) {
+    in.match(":"); // optional
     HeroPower hp;
     if (parse_hero_power(in, hp) && in.parse_end()) {
       players[current_player].hero_power = hp;

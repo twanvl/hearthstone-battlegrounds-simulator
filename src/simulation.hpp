@@ -1,3 +1,5 @@
+#pragma once
+
 #include "battle.hpp"
 #include <vector>
 #include <array>

@@ -1,3 +1,7 @@
+#pragma once
+
+#include "minion.hpp"
+#include "simulation.hpp"
 
 // -----------------------------------------------------------------------------
 // Error handling
@@ -26,7 +30,8 @@ struct ErrorHandler {
 // -----------------------------------------------------------------------------
 
 bool ignored_char(char x) {
-  return isspace(x) || x == '\'' || x == '-' || x == '_' || x == ':';
+  return !isalpha(x) && !isdigit(x) && x != '/';
+  //return isspace(x) || x == '\'' || x == '-' || x == '_' || x == ':';
 }
 bool is_word_end(char x) {
   return x == 0 || isspace(x) || x == ',' || x == ':';

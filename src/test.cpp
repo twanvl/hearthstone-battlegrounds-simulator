@@ -196,7 +196,7 @@ Battle game1(int turn) {
     player.append(Minion(MinionType::ImpGangBoss).set_stats(16,18));
     player.append(Minion(MinionType::KaboomBot, true).set_stats(39,27).set_taunt().set_divine_shield().add_deathrattle_microbots(3));
     // Nefarian (note: used hero power!)
-    enemy.hero_power = HeroPower::Neffarian;
+    enemy.hero_power = HeroPower::Nefarian;
     enemy.append(Minion(MinionType::FoeReaper4000).set_stats(7,10).set_taunt());
     enemy.append(Minion(MinionType::NightmareAmalgam,true).set_stats(36,31).set_taunt().set_poison());
     enemy.append(Minion(MinionType::KindlyGrandmother,true).set_stats(7,7));

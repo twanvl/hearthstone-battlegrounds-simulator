@@ -6,7 +6,7 @@ using std::cout;
 // Names
 // -----------------------------------------------------------------------------
 
-const char* hero_power_names[] = {"None", "Neffarian", "Ragnaros the Firelord", "Patches the Pirate","The Lich King", "Giantfin", "Professor Putricide"};
+const char* hero_power_names[] = {"None", "Nefarian", "Ragnaros the Firelord", "Patches the Pirate","The Lich King", "Giantfin", "Professor Putricide"};
 
 // -----------------------------------------------------------------------------
 // Events
@@ -16,7 +16,7 @@ void Battle::do_hero_power(HeroPower hp, int player) {
   switch(hp) {
     case HeroPower::None:
       break;
-    case HeroPower::Neffarian:
+    case HeroPower::Nefarian:
       damage_all(1-player, 1);
       break;
     case HeroPower::RagnarosTheFirelord:

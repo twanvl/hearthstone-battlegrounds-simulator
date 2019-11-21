@@ -129,7 +129,7 @@ Board
 * 16/18 Imp Gang Boss
 * 39/27 Golden Kaboom Bot, microbots, taunt, divine shield
 Vs
-hero-power Neffarian
+hero-power Nefarian
 * 7/10 Foe Reaper 4000, taunt
 * 36/31 golden NightmareAmalgam, taunt, poison
 * 7/7 golden KindlyGrandmother

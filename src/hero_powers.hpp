@@ -11,7 +11,7 @@ using std::ostream;
 
 enum class HeroPower : unsigned char {
   None,
-  Neffarian,           // deal 1 damage to all enemies
+  Nefarian,            // deal 1 damage to all enemies
   RagnarosTheFirelord, // deal 8 damage to two random enemies
   PatchesThePirate,    // deal 3 damage to two random enemies
   TheLichKing,         // give right-most minion reborn

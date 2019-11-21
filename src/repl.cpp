@@ -194,9 +194,11 @@ istream& REPL::parse_minion(istream& in, Minion& m) {
       m.taunt = true;
       m.divine_shield = true;
       m.buff(2,4);
-    } else if (word == "replicating-menace") {
+    } else if (word == "replicating-menace" || word == "replicating") {
       m.buff(3,1);
       m.add_deathrattle_microbots(3);
+    } else if (word == "menace" && m.deathrattle_microbots > 0) {
+      // from "replicating menace"
     } else if (word == "+") {
       // ignore
     } else {

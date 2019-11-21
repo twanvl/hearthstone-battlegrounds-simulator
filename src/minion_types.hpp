@@ -73,7 +73,7 @@ enum class MinionType : unsigned char {
   FesterootHulk,
   IronSensei,
   Junkbot,
-  ManagerieMagician,
+  MenagerieMagician,
   PilotedSkyGolem,
   SecurityRover,
   Siegebreaker,

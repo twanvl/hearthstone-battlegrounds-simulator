@@ -83,7 +83,7 @@ const MinionInfo minion_info[] = {
   {"Festeroot Hulk",4,Tribe::None,2,7,false,false,false,false},
   {"Iron Sensei",4,Tribe::Mech,2,2,false,false,false,false},
   {"Junkbot",4,Tribe::Mech,1,5,false,false,false,false},
-  {"Managerie Magician",4,Tribe::None,4,4,false,false,false,false},
+  {"Menagerie Magician",4,Tribe::None,4,4,false,false,false,false},
   {"Piloted Sky Golem",4,Tribe::Mech,6,4,false,false,false,false},
   {"Security Rover",4,Tribe::Mech,2,6,false,false,false,false},
   {"Siegebreaker",4,Tribe::Demon,5,8,true,false,false,false},

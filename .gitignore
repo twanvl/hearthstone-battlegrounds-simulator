@@ -4,3 +4,4 @@
 *.o
 web/*.js
 web/*.wasm
+src/board_data.cpp

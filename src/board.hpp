@@ -20,6 +20,13 @@ struct MinionArray {
   //  the first size() elements are valid, all other elements have !.exists()
   Minion minions[N];
 
+  MinionArray() {}
+  MinionArray(std::initializer_list<Minion> minions) {
+    for (size_t i=0; i<minions.size() && i<7; ++i) {
+      this->minions[i] = minions.begin()[i];
+    }
+  }
+
   Minion const& operator [] (int i) const {
     return minions[i];
   }
@@ -45,6 +52,14 @@ struct MinionArray {
     int total = 0;
     for (int i=0; i<N && minions[i].exists(); ++i) {
       total += minions[i].stars();
+    }
+    return total;
+  }
+
+  int total_stats() const {
+    int total = 0;
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      total += minions[i].attack + minions[i].health;
     }
     return total;
   }
@@ -83,6 +98,13 @@ struct MinionArray {
 
   template <typename F>
   void for_each(F fun) {
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      fun(minions[i]);
+    }
+  }
+
+  template <typename F>
+  void for_each(F fun) const {
     for (int i=0; i<N && minions[i].exists(); ++i) {
       fun(minions[i]);
     }
@@ -142,6 +164,13 @@ struct Board : MinionArray<BOARDSIZE> {
   // health of the player
   int health = 0;
 
+  Board() {}
+  Board(std::initializer_list<Minion> minions, HeroPower hero_power, int level, int health)
+    : MinionArray<BOARDSIZE>(minions)
+    , hero_power(hero_power)
+    , level(level)
+    , health(health)
+  {}
 
   bool insert(int pos, Minion const& minion) {
     if (!MinionArray::insert(pos,minion)) return false;

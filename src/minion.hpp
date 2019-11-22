@@ -122,18 +122,22 @@ struct Minion {
     this->deathrattle_plants = min(this->deathrattle_plants+n,7);
     return *this;
   }
+
+  // full dump/construction
+
+  constexpr Minion(MinionType type, bool golden, int attack, int health, bool taunt, bool divine_shield, bool poison, bool windfury, bool reborn, int deathrattle_murlocs, int deathrattle_microbots, int deathrattle_golden_microbots, int deathrattle_plants)
+    : attack(attack), health(health)
+    , type(type), golden(golden)
+    , taunt(taunt), divine_shield(divine_shield), poison(poison), windfury(windfury), reborn(reborn)
+    , deathrattle_murlocs(deathrattle_murlocs), deathrattle_microbots(deathrattle_microbots)
+    , deathrattle_golden_microbots(deathrattle_golden_microbots), deathrattle_plants(deathrattle_plants)
+    , attack_buff(0)
+    , health_buff(0)
+  {}
 };
 
-inline ostream& operator << (ostream& s, Minion minion) {
+inline ostream& operator << (ostream& s, Minion const& minion) {
   s << minion.attack << "/" << minion.health << " ";
-  /*if (minion.taunt || minion.divine_shield || minion.poison || minion.windfury) {
-    s << "[";
-    if (minion.taunt) s << "T";
-    if (minion.divine_shield) s << "D";
-    if (minion.poison) s << "P";
-    if (minion.windfury) s << "W";
-    s << "] ";
-  }*/
   if (minion.golden) s << "Golden ";
   s << minion.name();
   if (false) {

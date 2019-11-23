@@ -191,7 +191,7 @@ void Battle::check_for_deaths() {
     // Normal hearthstone uses the order in which minions are played, but it is not clear how that works in battlegrounds
     // to remain balanced, always run attacking player first
     recompute_auras();
-    for (int player=turn; player>=0 && player<2; turn ? ++player : --player) {
+    for (int player=turn; player>=0 && player<2; turn ? --player : ++player) {
       for (int i=0; i<num_dead[player]; ++i) {
         on_death(dead_minions[player][i], player, positions[player][i]);
       }

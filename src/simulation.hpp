@@ -59,22 +59,26 @@ struct ScoreSummary {
   }
 };
 
-inline int simulate_single(Board const& player0, Board const& player1, ScoreSummary& stats) {
-  Battle battle(player0, player1);
+inline int simulate_single(Board const& player0, Board const& player1, ScoreSummary& stats, RNG& rng) {
+  Battle battle(player0, player1, nullptr, rng);
   battle.run();
   stats.add_run(battle);
   return battle.score();
 }
 
-ScoreSummary simulate(Board const& player0, Board const& player1, int n = DEFAULT_NUM_RUNS, vector<int>* out = nullptr) {
+ScoreSummary simulate(Board const& player0, Board const& player1, int n = DEFAULT_NUM_RUNS, vector<int>* out = nullptr, RNG& rng = global_rng) {
   ScoreSummary stats;
   if (out) out->reserve(out->size() + n);
   for (int i=0; i<n; ++i) {
-    int score = simulate_single(player0, player1, stats);
+    int score = simulate_single(player0, player1, stats, rng);
     if (out) out->push_back(score);
   }
   if (out) std::sort(out->begin(), out->end());
   return stats;
+}
+ScoreSummary simulate_deterministic(Board const& player0, Board const& player1, RNG const& rng, int n = DEFAULT_NUM_RUNS, vector<int>* out = nullptr) {
+  RNG rng_copy = rng; // copy the rng for repeatability
+  return simulate(player0, player1, n, out, rng_copy);
 }
 
 // -----------------------------------------------------------------------------
@@ -176,7 +180,7 @@ void display_objective_value(ostream& out, Objective objective, double score) {
 };
 
 // -----------------------------------------------------------------------------
-// Optimization
+// Minion order optimization
 // -----------------------------------------------------------------------------
 
 void permute_minions(Board& board, Minion const original[], int const perm[], int n) {
@@ -197,7 +201,7 @@ struct OptimizeMinionOrder {
   double best_score;
   int n;
   
-  OptimizeMinionOrder(Board const& board, Board const& enemy, Objective objective, int budget = DEFAULT_NUM_RUNS) {
+  OptimizeMinionOrder(Board const& board, Board const& enemy, Objective objective, int budget = DEFAULT_NUM_RUNS, RNG& rng = global_rng) {
     n = board.size();
     // number of permutations
     int nperm = 1;
@@ -207,13 +211,13 @@ struct OptimizeMinionOrder {
     // current situation
     std::array<int,BOARDSIZE> order;
     for (int i=0; i<n; ++i) order[i] = i;
-    current_score = objective_value(objective, simulate(board, enemy, full_runs));
+    current_score = objective_value(objective, simulate_deterministic(board, enemy, rng, full_runs));
     best_score = current_score;
     best_order = order;
     // optimize over all permutations
     do {
       Board const& permuted = permute_minions(board, order.data(), n);
-      double score = objective_value(objective, simulate(permuted, enemy, runs));
+      double score = objective_value(objective, simulate_deterministic(permuted, enemy, rng, runs));
       if (score > best_score) {
         best_score = score;
         best_order = order;
@@ -222,8 +226,9 @@ struct OptimizeMinionOrder {
     // re-check with full number of runs, also to avoid multiple-testing bias
     if (runs < full_runs && best_score > current_score) {
       Board const& permuted = permute_minions(board, best_order.data(), n);
-      best_score = objective_value(objective, simulate(permuted, enemy, full_runs));
+      best_score = objective_value(objective, simulate_deterministic(permuted, enemy, rng, full_runs));
     }
+    rng.jump();
   }
 };
 

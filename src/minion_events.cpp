@@ -52,7 +52,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     case MinionType::SelflessHero:
       TWICE_IF_GOLDEN() {
-        board[player].give_random_minion_divine_shield();
+        board[player].give_random_minion_divine_shield(target_rng);
       }
       break;
     // Tier 2
@@ -70,7 +70,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     case MinionType::MountedRaptor:
       TWICE_IF_GOLDEN() {
-        summon(random_one_cost_minion(), player, pos);
+        summon(random_one_cost_minion(summon_rng), player, pos);
       }
       break;
     case MinionType::RatPack:
@@ -85,7 +85,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     case MinionType::PilotedShredder:
       TWICE_IF_GOLDEN() {
-        summon(random_two_cost_minion(), player, pos);
+        summon(random_two_cost_minion(summon_rng), player, pos);
       }
       break;
     case MinionType::ReplicatingMenace:
@@ -93,13 +93,13 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     case MinionType::TortollanShellraiser: {
       int amount = double_if_golden(1,m.golden);
-      board[player].buff_random_minion(amount,amount);
+      board[player].buff_random_minion(amount,amount,target_rng);
       break;
     }
     // Tier 4
     case MinionType::PilotedSkyGolem:
       TWICE_IF_GOLDEN() {
-        summon(random_four_cost_minion(), player, pos);
+        summon(random_four_cost_minion(summon_rng), player, pos);
       }
       break;
     case MinionType::TheBeast:
@@ -123,7 +123,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
     // Tier 6
     case MinionType::Ghastcoiler:
       for (int i=0; i<double_if_golden(2,m.golden); ++i) {
-        summon(random_deathrattle_minion(), player, pos);
+        summon(random_deathrattle_minion(summon_rng), player, pos);
       }
       break;
     case MinionType::KangorsApprentice:
@@ -133,7 +133,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     case MinionType::SneedsOldShredder:
       TWICE_IF_GOLDEN() {
-        summon(random_legendary_minion(), player, pos);
+        summon(random_legendary_minion(summon_rng), player, pos);
       }
       break;
     default:;

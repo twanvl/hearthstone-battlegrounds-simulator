@@ -2,6 +2,7 @@
 
 #include "minion_types.hpp"
 #include "tribe.hpp"
+#include "random.hpp"
 
 // -----------------------------------------------------------------------------
 // Minion type info
@@ -45,11 +46,11 @@ inline int stars(MinionType type) { return info(type).stars; }
 
 // random minion spawning
 
-MinionType random_one_cost_minion();
-MinionType random_two_cost_minion();
-MinionType random_four_cost_minion();
-MinionType random_deathrattle_minion();
-MinionType random_legendary_minion();
+MinionType random_one_cost_minion(RNG& rng);
+MinionType random_two_cost_minion(RNG& rng);
+MinionType random_four_cost_minion(RNG& rng);
+MinionType random_deathrattle_minion(RNG& rng);
+MinionType random_legendary_minion(RNG& rng);
 
 
 template <typename A, int N>

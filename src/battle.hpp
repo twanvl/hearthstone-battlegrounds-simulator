@@ -13,19 +13,28 @@ using std::endl;
 const int MAX_MECHS_THAT_DIED = 4;
 
 struct Battle {
-  int turn = 0; // player to attack next
+  int turn = -1; // player to attack next
   Board board[2];
+  // randomness
+  RNG& target_rng;
+  RNG& summon_rng;
   // mechs that died for each player
   MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
   // logging
   int verbose = 0;
   ostream* log;
 
-  Battle(ostream* log = nullptr) : log(log) {}
-  Battle(Board const& b0, Board const& b1, ostream* log = nullptr) : board{b0,b1}, log(log) {
+  Battle(Board const& b0, Board const& b1, ostream* log = nullptr, RNG& rng = global_rng)
+    : board{b0,b1}
+    , target_rng(rng), summon_rng(rng)
+    , log(log)
+  {
     recompute_auras();
   }
 
+  bool started() const {
+    return turn >= 0;
+  }
   bool done() const {
     return board[0].empty() || board[1].empty();
   }

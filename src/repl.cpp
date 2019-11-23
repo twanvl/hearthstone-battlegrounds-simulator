@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 using namespace std;
 
 // -----------------------------------------------------------------------------
@@ -23,9 +24,8 @@ struct REPL {
   vector<int> actual_outcomes;
 
   // single stepping
-  bool battle_started = false;
-  Battle step_battle;
-  vector<Battle> history;
+  unique_ptr<Battle> active_battle;
+  vector<unique_ptr<Battle>> history;
 
   // simulating
   int default_num_runs = DEFAULT_NUM_RUNS;
@@ -386,48 +386,48 @@ void REPL::do_optimize_order(int n) {
 }
 
 void REPL::do_show() {
-  if (!battle_started) {
-    step_battle = Battle(players[0], players[1], &out);
+  if (!active_battle) {
+    active_battle.reset(new Battle(players[0], players[1], &out));
+    active_battle->verbose = 2;
   }
-  out << step_battle;
+  out << *active_battle;
 }
 
 
 void REPL::do_reset() {
-  battle_started = false;
+  active_battle.reset();
   history.clear();
 }
 
 void REPL::do_step() {
-  if (!battle_started) {
+  if (!active_battle) {
     history.clear();
-    step_battle = Battle(players[0], players[1], &out);
-    step_battle.verbose = 2;
-    history.push_back(step_battle);
-    step_battle.start();
-    battle_started = true;
-  } else if (!step_battle.done()) {
-    history.push_back(step_battle);
-    step_battle.attack_round();
+    active_battle.reset(new Battle(players[0], players[1], &out));
+    active_battle->verbose = 2;
+  } else if (!active_battle->started()) {
+    history.push_back(unique_ptr<Battle>(new Battle(*active_battle)));
+    active_battle->start();
+  } else if (!active_battle->done()) {
+    history.push_back(unique_ptr<Battle>(new Battle(*active_battle)));
+    active_battle->attack_round();
   } else {
-    out << "Battle is done, score: " << step_battle.score() << endl;
+    out << "Battle is done, score: " << active_battle->score() << endl;
     return;
   }
-  out << step_battle << endl;
+  out << *active_battle << endl;
 }
 
 void REPL::do_trace() {
-  if (!battle_started) do_step();
-  while (!step_battle.done()) do_step();
+  if (!active_battle) do_step();
+  while (!active_battle->done()) do_step();
   do_step();
 }
 
 void REPL::do_back() {
   if (!history.empty()) {
-    step_battle = history.back();
+    active_battle = move(history.back());
     history.pop_back();
-    if (history.empty()) battle_started = false;
-    out << step_battle << endl;
+    out << *active_battle << endl;
   } else {
     error() << "History is empty" << endl;
   }

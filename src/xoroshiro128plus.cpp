@@ -6,7 +6,8 @@ worldwide. This software is distributed without any warranty.
 
 See <http://creativecommons.org/publicdomain/zero/1.0/>. */
 
-#include <stdint.h>
+/* Modified by Twan van Laarhoven
+*/
 
 /* This is xoroshiro128+ 1.0, our best and fastest small-state generator
    for floating-point numbers. We suggest to use its upper bits for
@@ -30,17 +31,14 @@ See <http://creativecommons.org/publicdomain/zero/1.0/>. */
    NOTE: the parameters (a=24, b=16, b=37) of this version give slightly
    better results in our test than the 2016 version (a=55, b=14, c=36).
 */
-
-namespace randoms {
+#include "random.hpp"
 
 static inline uint64_t rotl(const uint64_t x, int k) {
 	return (x << k) | (x >> (64 - k));
 }
 
 
-static uint64_t s[2] = {1234567891234567890u,9876543210987654321u};
-
-uint64_t next(void) {
+uint64_t RNG::next() {
 	const uint64_t s0 = s[0];
 	uint64_t s1 = s[1];
 	const uint64_t result = s0 + s1;
@@ -57,7 +55,7 @@ uint64_t next(void) {
    to 2^64 calls to next(); it can be used to generate 2^64
    non-overlapping subsequences for parallel computations. */
 
-void jump(void) {
+void RNG::jump() {
 	static const uint64_t JUMP[] = { 0xdf900294d8f554a5, 0x170865df4b3201fc };
 
 	uint64_t s0 = 0;
@@ -81,7 +79,7 @@ void jump(void) {
    from each of which jump() will generate 2^32 non-overlapping
    subsequences for parallel distributed computations. */
 
-void long_jump(void) {
+void RNG::long_jump() {
 	static const uint64_t LONG_JUMP[] = { 0xd2a98b26625eee7b, 0xdddf9b1090aa7ac1 };
 
 	uint64_t s0 = 0;
@@ -99,20 +97,4 @@ void long_jump(void) {
 	s[1] = s1;
 }
 
-// -----------------------------------------------------------------------------
-// Random numbers in range
-// -----------------------------------------------------------------------------
-
-uint64_t random(uint64_t range) {
-  return next() % range;
-  /*
-  // TODO: make sure range evenly divides 2^64
-  */
-}
-
-int random(int range) {
-  return (int)random((uint64_t)range);
-}
-
-}
-
+RNG global_rng;

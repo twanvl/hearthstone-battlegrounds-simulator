@@ -213,23 +213,23 @@ const MinionType legendary_minions[] = {
 // -----------------------------------------------------------------------------
 
 template <typename A, int N>
-A random_element(A(& list)[N]) {
-  return list[random(array_size(list))];
+A random_element(A(& list)[N], RNG& rng) {
+  return list[rng.random(array_size(list))];
 }
 
-MinionType random_one_cost_minion() {
-  return random_element(one_cost_minions);
+MinionType random_one_cost_minion(RNG& rng) {
+  return random_element(one_cost_minions, rng);
 }
-MinionType random_two_cost_minion() {
-  return random_element(two_cost_minions);
+MinionType random_two_cost_minion(RNG& rng) {
+  return random_element(two_cost_minions, rng);
 }
-MinionType random_four_cost_minion() {
-  return random_element(four_cost_minions);
+MinionType random_four_cost_minion(RNG& rng) {
+  return random_element(four_cost_minions, rng);
 }
-MinionType random_legendary_minion() {
-  return random_element(legendary_minions);
+MinionType random_legendary_minion(RNG& rng) {
+  return random_element(legendary_minions, rng);
 }
-MinionType random_deathrattle_minion() {
-  return random_element(deathrattle_minions);
+MinionType random_deathrattle_minion(RNG& rng) {
+  return random_element(deathrattle_minions, rng);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "minion.hpp"
-#include "hero_powers.hpp"
+#include "enums.hpp"
 #include "random.hpp"
 #include <iostream>
 #include <cstdlib>

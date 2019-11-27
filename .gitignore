@@ -5,3 +5,6 @@
 web/*.js
 web/*.wasm
 src/board_data.cpp
+src/enums.hpp
+src/enum_data.cpp
+src/*.txt

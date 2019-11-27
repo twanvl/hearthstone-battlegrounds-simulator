@@ -20,7 +20,7 @@ struct Minion {
   int attack_buff : 8, health_buff : 8; // temporary buffs from auras, at most 7*4
 
   Minion() {
-    this->type = MinionType::NONE;
+    this->type = MinionType::None;
     this->attack = -1;
     this->health = -1;
     this->taunt  = false;
@@ -67,12 +67,12 @@ struct Minion {
   bool cleave() const { return info(type).cleave; }
   bool has_tribe(Tribe query) const { return ::has_tribe(tribe(), query); }
 
-  bool exists() const { return type != MinionType::NONE; }
+  bool exists() const { return type != MinionType::None; }
   bool dead() const { return health <= 0; }
   bool alive() const { return exists() && !dead(); }
 
   void clear() {
-    this->type = MinionType::NONE;
+    this->type = MinionType::None;
   }
   void buff(int attack, int health) {
     this->attack += attack;

@@ -1,12 +1,5 @@
-#include "hero_powers.hpp"
 #include "battle.hpp"
 using std::cout;
-
-// -----------------------------------------------------------------------------
-// Names
-// -----------------------------------------------------------------------------
-
-const char* hero_power_names[] = {"None", "Nefarian", "Ragnaros the Firelord", "Patches the Pirate","The Lich King", "Giantfin", "Professor Putricide"};
 
 // -----------------------------------------------------------------------------
 // Events
@@ -44,7 +37,7 @@ void Battle::do_hero_power(HeroPower hp, int player) {
         board[player].minions[0].attack += 10;
       }
       break;
-    case HeroPower::COUNT:;
+    default:;
   }
 }
 

@@ -1,6 +1,6 @@
 #pragma once
+#include "enums.hpp"
 #include "board.hpp"
-#include "hero_powers.hpp"
 #include <iostream>
 #include <cstdlib>
 using std::ostream;

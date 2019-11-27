@@ -2,6 +2,7 @@
 
 #include "minion.hpp"
 #include "simulation.hpp"
+#include <cstring>
 
 // -----------------------------------------------------------------------------
 // Error handling
@@ -94,7 +95,7 @@ struct StringParser {
       return false;
     }
   }
-  bool exact_match(const char* query) {
+  bool match_exact(const char* query) {
     const char* after = str;
     while (*query) {
       if (*after != *query) {
@@ -114,8 +115,16 @@ struct StringParser {
       return false;
     }
   }
-  void skip_ws() {
-    while (isspace(*str)) ++str;
+  bool match_string(std::string& out, char end=0, bool allow_empty=true) {
+    const char* after = str;
+    while (*after && *after != end) ++after;
+    if (allow_empty || after != str) {
+      out.assign(str,after);
+      str = after;
+      return true;
+    } else {
+      return false;
+    }
   }
   bool match_end() {
     const char* at = str;
@@ -130,8 +139,36 @@ struct StringParser {
     return true;
   }
 
+  void skip_ws() {
+    while (isspace(*str)) ++str;
+  }
+  bool skip_until(const char* query) {
+    const char* pos = strstr(str, query);
+    if (pos) {
+      str = pos + strlen(query);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  // skip all characters up to and including the query string
+  bool skip_until(char query) {
+    const char* pos = strchr(str,query);
+    if (pos) {
+      str = pos + 1;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Error raising versions
 
+  bool parse_exact(const char* query) {
+    if (match_exact(query)) return true;
+    expected(query);
+    return false;
+  }
   bool parse_end() {
     if (match_end()) return true;
     expected("end of line");
@@ -156,6 +193,11 @@ struct StringParser {
     expected("non-negative number");
     return false;
   }
+  bool parse_string(std::string& out) {
+    if (match_string(out)) return true;
+    expected("string");
+    return false;
+  }
 
   // Errors
 
@@ -174,12 +216,12 @@ struct StringParser {
   bool end() const {
     return !*str;
   }
-  std::string next_token() const {
+  std::string next_token(char end_char=0) const {
     const char* start = str;
     while (isspace(*start)) ++start;
     if (!*start) return "<end of line>";
     const char* end = start;
-    while (!is_token_end(*end)) ++end;
+    while (!is_token_end(*end) && *end != end_char) ++end;
     return std::string(start,end);
   }
 };
@@ -189,7 +231,7 @@ struct StringParser {
 // -----------------------------------------------------------------------------
 
 bool match_minion_type(StringParser& in, MinionType& out) {
-  for (int i=0; i < static_cast<int>(MinionType::COUNT); ++i) {
+  for (int i=0; i < MinionType_count; ++i) {
     if (in.match(minion_info[i].name)) {
       out = static_cast<MinionType>(i);
       return true;
@@ -199,8 +241,8 @@ bool match_minion_type(StringParser& in, MinionType& out) {
 }
 
 bool match_hero_power(StringParser& in, HeroPower& out) {
-  for (int i=0; i < static_cast<int>(HeroPower::COUNT); ++i) {
-    if (in.match(hero_power_names[i])) {
+  for (int i=0; i < HeroPower_count; ++i) {
+    if (in.match(hero_info[i].name) || in.match(hero_info[i].hero_power.name)) {
       out = static_cast<HeroPower>(i);
       return true;
     }
@@ -254,7 +296,7 @@ bool parse_buffs(StringParser& in, Minion& m) {
       if (!in.parse_int(attack)) {
         return false;
       }
-      if (in.exact_match("/")) {
+      if (in.match_exact("/")) {
         int health = 0;
         if (in.match_int(health)) {
           m.buff(attack,health);
@@ -320,7 +362,7 @@ bool parse_minion(StringParser& in, Minion& m) {
   in.skip_ws();
   if (isdigit(in.peek())) {
     const char* at = in.str;
-    if (!(in.match_int(attack) && in.exact_match("/") && in.match_int(health))) {
+    if (!(in.match_int(attack) && in.match_exact("/") && in.match_int(health))) {
       in.str = at;
       in.expected("'attack/health'");
       return false;

@@ -1,8 +1,27 @@
 #pragma once
 
-#include "minion_types.hpp"
-#include "tribe.hpp"
+#include "enums.hpp"
 #include "random.hpp"
+#include <ostream>
+using std::ostream;
+
+// -----------------------------------------------------------------------------
+// Tribe utilities and info
+// -----------------------------------------------------------------------------
+
+constexpr bool has_tribe(Tribe t, Tribe query) {
+  return t == Tribe::All || t == query;
+}
+
+extern const char* tribe_names[Tribe_count];
+
+inline const char* name(Tribe t) {
+  return tribe_names[static_cast<int>(t)];
+}
+
+inline ostream& operator << (ostream& s, Tribe t) {
+  return s << name(t);
+}
 
 // -----------------------------------------------------------------------------
 // Minion type info
@@ -15,6 +34,7 @@ inline int double_if_golden(int x, bool golden) {
 // Minion info
 struct MinionInfo {
   const char* name;
+  const char* hs_id[2]; // internal id used by hearthstone, for normal and golden
   int stars;
   Tribe tribe;
   int attack, health;
@@ -31,7 +51,7 @@ struct MinionInfo {
 };
 
 // All information on the minions
-extern const MinionInfo minion_info[static_cast<int>(MinionType::COUNT)];
+extern const MinionInfo minion_info[MinionType_count];
 
 inline MinionInfo const& info(MinionType type) {
   return minion_info[static_cast<int>(type)];
@@ -52,7 +72,41 @@ MinionType random_four_cost_minion(RNG& rng);
 MinionType random_deathrattle_minion(RNG& rng);
 MinionType random_legendary_minion(RNG& rng);
 
+// -----------------------------------------------------------------------------
+// Hero power info
+// -----------------------------------------------------------------------------
+
+struct HeroPowerInfo {
+  const char* name;
+  const char* hs_id;
+};
+
+struct HeroInfo {
+  const char* name;
+  const char* hs_id;
+  HeroPowerInfo hero_power;
+};
+
+extern const HeroInfo hero_info[HeroPower_count];
+
+inline const char* name(HeroPower x) {
+  return hero_info[static_cast<int>(x)].name;
+}
+
+inline ostream& operator << (ostream& s, HeroPower x) {
+  return s << name(x);
+}
+
+// -----------------------------------------------------------------------------
+// Utilities
+// -----------------------------------------------------------------------------
+
+// utilities for random minions
 
 template <typename A, int N>
 constexpr int array_size(A(&)[N]) { return N; }
 
+template <typename A, int N>
+A random_element(A(& list)[N], RNG& rng) {
+  return list[rng.random(array_size(list))];
+}

@@ -4,7 +4,7 @@
 enum class MinionType : unsigned char {
   NONE,
   // Tier 1
-  AlleyCat,
+  Alleycat,
   DireWolfAlpha,
   Mecharoo,
   MicroMachine,
@@ -17,7 +17,7 @@ enum class MinionType : unsigned char {
   VulgarHomunculus,
   WrathWeaver,
   // Tier 1 tokens
-  TabbyCat,
+  Tabbycat,
   JoEBot,
   MurlocScout,
   AmalgamToken,

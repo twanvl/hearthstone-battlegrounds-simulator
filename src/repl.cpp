@@ -434,14 +434,14 @@ void REPL::do_back() {
 }
 
 void REPL::do_list_minions() {
-  for (int i=1; i < static_cast<int>(MinionType::COUNT); ++i) {
+  for (int i=1; i < MinionType_count; ++i) {
     out << minion_info[i].name << endl;
   }
 }
 
 void REPL::do_list_hero_powers() {
-  for (int i=1; i < static_cast<int>(HeroPower::COUNT); ++i) {
-    out << hero_power_names[i] << endl;
+  for (int i=1; i < HeroPower_count; ++i) {
+    out << hero_info[i].name << endl;
   }
 }
 

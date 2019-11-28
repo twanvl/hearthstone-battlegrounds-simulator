@@ -66,7 +66,8 @@ struct REPL {
   void do_list_hero_powers();
   void do_list_objectives();
   void do_run(int runs = -1);
-  void do_optimize_order(int runs = -1);
+  void do_optimize_order(Objective objective, int runs = -1);
+  void do_optimize_buff_placement(Minion const& buff, Objective objective, int runs = -1);
   void do_add_minion(Minion const&);
   void do_end_input();
 };
@@ -157,8 +158,17 @@ void REPL::parse_line(StringParser& in) {
     }
   } else if (in.match("optimize")) {
     in.match(":"); // optional
-    in.parse_end();
-    do_optimize_order();
+    Objective obj = optimization_objective;
+    match_objective(in,obj); // optional
+    if (in.match("buff")) {
+      Minion buff;
+      if (parse_buffs(in,buff) && in.parse_end()) {
+        do_optimize_buff_placement(buff,obj);
+      }
+    } else {
+      in.parse_end();
+      do_optimize_order(obj);
+    }
   } else if (in.match("runs")) {
     in.match(":"); // optional
     int n = DEFAULT_NUM_RUNS;
@@ -366,23 +376,40 @@ void REPL::do_run(int n) {
   used = true;
 }
 
-void REPL::do_optimize_order(int n) {
+void REPL::do_optimize_order(Objective objective, int n) {
   if (n <= 0) n = default_num_runs;
-  OptimizeMinionOrder opt(players[0], players[1], optimization_objective, n);
+  OptimizeMinionOrder opt(players[0], players[1], objective, n);
   if (opt.current_score >= opt.best_score) {
-    out << "Your " << name(optimization_objective) << " cannot be improved by reordering your minions" << endl;
+    out << "Your " << name(objective) << " cannot be improved by reordering your minions" << endl;
   } else {
-    out << "Your " << name(optimization_objective) << " can be improved from ";
-    display_objective_value(out, optimization_objective, opt.current_score);
+    out << "Your " << name(objective) << " can be improved from ";
+    display_objective_value(out, objective, opt.current_score);
     out << " to ";
-    display_objective_value(out, optimization_objective, opt.best_score);
+    display_objective_value(out, objective, opt.best_score);
     out << " by reordering your minions:" << endl;
     Board new_board = players[0];
     permute_minions(new_board, players[0].minions, opt.best_order.data(), opt.n);
     out << new_board;
-    // TODO: significance test
+    // TODO: significance test?
   }
   used = true;
+}
+
+void REPL::do_optimize_buff_placement(Minion const& buff, Objective objective, int n) {
+  if (n <= 0) n = default_num_runs;
+  // TODO
+  OptimizeMinionBuffPlacement opt(players[0], players[1], buff, objective, n);
+  out << "Current " << name(objective) << " is ";
+  display_objective_value(out, objective, opt.current_score);
+  out << endl;
+  players[0].for_each_with_pos([&](int i, Minion const& m) {
+    out << "Buffing " << m << "; " << name(objective) << " becomes ";
+    display_objective_value(out, objective, opt.scores[i]);
+    if (opt.scores[i] >= opt.best_score) {
+      out << ". This is the best.";
+    }
+    out << endl;
+  });
 }
 
 void REPL::do_show() {

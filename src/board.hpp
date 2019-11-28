@@ -136,6 +136,14 @@ struct MinionArray {
       }
     }
   }
+  template <typename F>
+  void for_each_with_pos(F fun) const {
+    for (int i=0; i<N && minions[i].exists(); ++i) {
+      if (!minions[i].dead()) {
+        fun(i, minions[i]);
+      }
+    }
+  }
 
 };
 

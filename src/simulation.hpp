@@ -232,3 +232,31 @@ struct OptimizeMinionOrder {
   }
 };
 
+// -----------------------------------------------------------------------------
+// Minion buff optimization
+// -----------------------------------------------------------------------------
+
+struct OptimizeMinionBuffPlacement {
+  double scores[BOARDSIZE];
+  double current_score;
+  double best_score;
+  
+  OptimizeMinionBuffPlacement(Board const& board, Board const& enemy, Minion const& buff, Objective objective, int budget = DEFAULT_NUM_RUNS, RNG& rng = global_rng) {
+    int full_runs = budget;
+    // current situation
+    current_score = objective_value(objective, simulate_deterministic(board, enemy, rng, full_runs));
+    best_score = current_score;
+    // optimize over all placements
+    board.for_each_with_pos([&](int i, Minion const&) {
+      Board new_board = board;
+      new_board.minions[i].buff(buff);
+      double score = objective_value(objective, simulate_deterministic(new_board, enemy, rng, full_runs));
+      scores[i] = score;
+      if (i == 0 || score > best_score) {
+        best_score = score;
+      }
+    });
+    rng.jump();
+  }
+};
+

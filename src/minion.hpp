@@ -74,10 +74,23 @@ struct Minion {
   void clear() {
     this->type = MinionType::None;
   }
+
   void buff(int attack, int health) {
     this->attack += attack;
     this->health += health;
   }
+  void buff(Minion const& b) {
+    // buff by the stats of the reference minion (want b.type == None)
+    this->attack += b.attack;
+    this->health += b.health;
+    this->taunt = this->taunt || b.taunt;
+    this->divine_shield = this->divine_shield || b.divine_shield;
+    this->poison = this->poison || b.poison;
+    this->windfury = this->windfury || b.windfury;
+    this->attack_buff += b.attack_buff;
+    this->health_buff += b.health_buff;
+  }
+
   void aura_buff(int attack, int health) {
     this->attack += attack;
     this->health += health;

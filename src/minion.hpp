@@ -21,8 +21,10 @@ struct Minion {
 
   Minion() {
     this->type = MinionType::None;
-    this->attack = -1;
-    this->health = -1;
+    this->attack = 0;
+    this->health = 0;
+    this->attack_buff = 0;
+    this->health_buff = 0;
     this->taunt  = false;
     this->divine_shield = false;
     this->poison = false;

@@ -53,11 +53,16 @@ The program can also be used in interactive mode, by starting it without any arg
     HP <hero>  = tell that a hero power is used
     level <n>  = give the level of a player
     health <n> = give the health of a player
-
+    
+    -- Modifying the board
+    give <m> <buff> = buff minion(s) m with one or more buffs
+    
     -- Running simulations
     actual <i> = tell about actual outcome (used in simulation display)
     run (<n>)  = run n simulations, report statistics (default: 1000)
-
+    optimize   = optimize the minion order to maximize some objective
+    objective  = set the optimization objective (default: minimize damage taken)
+    
     -- Stepping through a single battle
     show       = show the board state
     reset      = reset battle
@@ -76,15 +81,43 @@ The program can also be used in interactive mode, by starting it without any arg
     for example
      * 10/12 Nightmare Amalgam
      * Golden Murloc Tidecaller, poisonous, divine shield, taunt, windfury, +12 attack
+    
+    -- Minion buffs
+     * +<n> attack = buff attack by this much
+     * +<n> health = buff health by this much
+     * +<a>/+<h>   = buff attack and health
+     * taunt, divine shield, poisonous, windfury = the obvious
+     * microbots   = deathrattle: summon 3 1/1 Microbots
+     * golden microbots = deathrattle: summon 3 2/2 Microbots
+     * plants      = deathrattle: summon 2 1/1 Plants
+     * <minion>    = magnetize given minion
+    
+    -- Refering to a minion
+    You can refer to a minion with an index (1 to 7), a name, a tribe, or all
+    For example
+      give all +1/+1
+      give 2 poisonous  # buffs the second minion
+      give Mech divine shield, windfury
+      give Cave Hydra +10 health
+    By default this refers to your side, to modify the enemy:
+      give enemy all taunt
 
 A better user interface is a work in progress.
+
+Compiling
+----
+
+To compile the code you need a recent version of gcc, python and make.
+Run `make` in the root directory to build the executable.
+
+To make the web version you need emscripten, run `make web` to build it.
 
 FAQ
 ----
 
 Q: How do I put in a board state  
-A: Currently in C++ code, see test.cpp.
-The dream is to eventually make an image recognizer to do this automatically, but that might not be worth the effort.
+A: Use a text file, see the examples directory.
+The plan is to eventually make a parser for the Hearthstone log files.
 
 Q: What about Bob's tavern?  
 A: Currently only actual battles are simulated, the program doesn't know about buying, selling, leveling etc.
@@ -92,7 +125,7 @@ A: Currently only actual battles are simulated, the program doesn't know about b
 Q: What can I do with this?  
 A: 
 * You can see how lucky you are
-* You can learn to better position your minions
+* You can learn to better position your minions (use the `optimize` command)
 * (future) you can see how well your board is expected to do at a certain turn of the game
 
 Q: Known bugs  

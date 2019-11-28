@@ -145,6 +145,18 @@ void REPL::parse_line(StringParser& in) {
     if (in.parse_int(n) && in.parse_end()) {
       actual_outcomes.push_back(n);
     }
+  } else if (in.match("give")) {
+    MinionRef ref;
+    Minion buff;
+    bool enemy = in.match("enemy");
+    if (parse_minion_ref(in,ref) && parse_buffs(in,buff) && in.parse_end()) {
+      int n = 0;
+      ref.for_each(players[enemy ? 1 : 0], [&](Minion& m){
+        m.buff(buff);
+        n++;
+      });
+      out << "Modified " << n << " minion" << (n == 1 ? "" : "s") << endl;
+    }
   } else if (in.match("run") || in.match("simulate")) {
     in.match(":"); // optional
     int n = -1;
@@ -240,14 +252,14 @@ void REPL::do_help() {
   //out << "secret <secret> = tell that a secret is in play" << endl;
   //out << "after-auras = tell the program that the stats given are after taking auras into account (default = true)" << endl;
   out << endl;
+  out << "-- Modifying the board" << endl;
   /*
-  out << "-- Modifying the board stepwise" << endl;
   out << "move <i> to <j> = move a minion from position i to position j" << endl;
   out << "sell <i> = sell minion(s) with position/condition i" << endl;
   out << "play <minion> [at <i>]" << endl;
-  out << "give <i> <buff> = buff minion(s) i with one or more buffs" << endl;
-  out << endl;
   */
+  out << "give <m> <buff> = buff minion(s) m with one or more buffs" << endl;
+  out << endl;
   out << "-- Running simulations" << endl;
   out << "actual <i> = tell about actual outcome (used in simulation display)" << endl;
   out << "run [<n>]  = run n simulations (default: 100)" << endl;
@@ -285,14 +297,16 @@ void REPL::do_help() {
   out << " * golden microbots = deathrattle: summon 3 2/2 Microbots" << endl;
   out << " * plants      = deathrattle: summon 2 1/1 Plants" << endl;
   out << " * <minion>    = magnetize given minion" << endl;
-  /*
   out << endl;
   out << "-- Refering to a minion" << endl;
   out << "You can refer to a minion with an index (1 to 7), a name, a tribe, or all" << endl;
   out << "For example" << endl;
   out << "  give all +1/+1" << endl;
-  out << "  give Mechs divine shield, windfury" << endl;
-  */
+  out << "  give 2 poisonous  # buffs the second minion" << endl;
+  out << "  give Mech divine shield, windfury" << endl;
+  out << "  give Cave Hydra +10 health" << endl;
+  out << "By default this refers to your side, to modify the enemy:" << endl;
+  out << "  give enemy all taunt" << endl;
 }
 
 void REPL::do_quit() {

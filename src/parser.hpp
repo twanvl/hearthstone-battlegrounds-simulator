@@ -230,6 +230,16 @@ struct StringParser {
 // Parsers
 // -----------------------------------------------------------------------------
 
+bool match_tribe(StringParser& in, Tribe& out) {
+  for (int i=0; i < Tribe_count; ++i) {
+    if (in.match(tribe_names[i])) {
+      out = static_cast<Tribe>(i);
+      return true;
+    }
+  }
+  return false;
+}
+
 bool match_minion_type(StringParser& in, MinionType& out) {
   for (int i=0; i < MinionType_count; ++i) {
     if (in.match(minion_info[i].name)) {
@@ -391,5 +401,93 @@ bool parse_minion(StringParser& in, Minion& m) {
     if (!parse_buffs(in, m)) return false;
   }
   return true;
+}
+
+// -----------------------------------------------------------------------------
+// References to a minion or a group of minions
+// -----------------------------------------------------------------------------
+
+struct MinionRef {
+  enum class Type {
+    Position,
+    Last,
+    Tribe,
+    MinionType,
+  } type;
+  union {
+    int pos;
+    Tribe tribe;
+    MinionType minion_type;
+  };
+  MinionRef() : type(Type::Tribe), tribe(Tribe::None) {}
+  MinionRef(int i) : type(Type::Position), pos(i) {}
+  MinionRef(Tribe t) : type(Type::Tribe), tribe(t) {}
+  MinionRef(MinionType t) : type(Type::MinionType), minion_type(t) {}
+
+  static MinionRef last() {
+    MinionRef r;
+    r.type = Type::Last;
+    return r;
+  }
+
+  template <typename Fun>
+  void for_each(Board& b, Fun fun) {
+    switch (type) {
+      case Type::Position:
+        if (pos >= 0 && pos < BOARDSIZE && b.minions[pos].exists()) {
+          fun(b.minions[pos]);
+        }
+        return;
+      case Type::Last: {
+        int n = b.size();
+        if (n > 0) {
+          fun(b.minions[n-1]);
+        }
+        return;
+      }
+      case Type::Tribe:
+        b.for_each([&](Minion& m) {
+          if (tribe == Tribe::All || m.has_tribe(tribe)) {
+            fun(m);
+          }
+        });
+        return;
+      case Type::MinionType:
+        b.for_each([&](Minion& m) {
+          if (m.type == minion_type) {
+            fun(m);
+          }
+        });
+        return;
+    }
+  }
+};
+
+bool parse_minion_ref(StringParser& in, MinionRef& out) {
+  Tribe tribe;
+  if (match_tribe(in, tribe)) {
+    out = MinionRef(tribe);
+    return true;
+  }
+  MinionType type;
+  if (match_minion_type(in, type)) {
+    out = MinionRef(type);
+    return true;
+  }
+  int i;
+  if (in.match_int(i) && i > 0 && i-1 < BOARDSIZE) {
+    out = MinionRef(i-1); // Note: 1 based indexing in ui
+    return true;
+  }
+  if (in.match("start") || in.match("first")) {
+    out = MinionRef(0);
+    return true;
+  }
+  if (in.match("last")) {
+    out = MinionRef::last();
+    return true;
+  }
+  in.expected("minion reference (position, tribe or name)");
+  return false;
 }
 

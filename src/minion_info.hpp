@@ -39,7 +39,7 @@ struct MinionInfo {
   Tribe tribe;
   int attack, health;
   bool taunt, divine_shield, poison, windfury, cleave;
-  bool battlecry;
+  //bool battlecry;
   //bool affects_auras;
 
   inline int attack_for(bool golden) const {

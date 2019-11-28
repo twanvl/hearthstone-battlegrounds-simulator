@@ -177,7 +177,7 @@ void display_objective_value(ostream& out, Objective objective, double score) {
       out << percentage(-score);
       return;
   }
-};
+}
 
 // -----------------------------------------------------------------------------
 // Minion order optimization

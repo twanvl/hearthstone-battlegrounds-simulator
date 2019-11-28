@@ -149,6 +149,9 @@ inline ostream& operator << (ostream& s, Minion const& minion) {
   if (minion.divine_shield) s << ", divine shield";
   if (minion.poison) s << ", poisonous";
   if (minion.windfury) s << ", windfury";
+  for (int i=0; i < minion.deathrattle_microbots; i+=3) s << ", microbots";
+  for (int i=0; i < minion.deathrattle_golden_microbots; i+=3) s << ", golden microbots";
+  for (int i=0; i < minion.deathrattle_plants; i+=2) s << ", plants";
   return s;
 }
 

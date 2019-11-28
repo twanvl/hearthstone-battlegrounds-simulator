@@ -196,8 +196,8 @@ def write_enums_hpp(minions, heroes):
   f.write("// Tribes\n")
   f.write("// -----------------------------------------------------------------------------\n\n")
   f.write("enum class Tribe {\n")
-  for t in tribes.values():
-    f.write("  {},\n".format(t))
+  for i in sorted(tribes):
+    f.write("  {},\n".format(tribes[i]))
   f.write("};\n\n")
   f.write("const int Tribe_count = {};\n\n".format(len(tribes)))
 
@@ -259,8 +259,8 @@ def write_enum_data_cpp(minions, heroes):
   f.write("// Tribe information\n")
   f.write("// -----------------------------------------------------------------------------\n\n")
   f.write("const char* tribe_names[] = {\n")
-  for t in tribes.values():
-    f.write("  {},\n".format(cstr(t)))
+  for i in sorted(tribes):
+    f.write("  {},\n".format(cstr(tribes[i])))
   f.write("};\n\n")
 
   f.write("// -----------------------------------------------------------------------------\n")

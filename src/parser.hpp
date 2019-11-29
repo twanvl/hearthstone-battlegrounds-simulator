@@ -431,7 +431,7 @@ struct MinionRef {
   }
 
   template <typename Fun>
-  void for_each(Board& b, Fun fun) {
+  void for_each(Board& b, Fun fun) const {
     switch (type) {
       case Type::Position:
         if (pos >= 0 && pos < BOARDSIZE && b.minions[pos].exists()) {

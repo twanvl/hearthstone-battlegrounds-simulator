@@ -69,6 +69,7 @@ struct REPL {
   void do_optimize_order(Objective objective, int runs = -1);
   void do_optimize_buff_placement(Minion const& buff, Objective objective, int runs = -1);
   void do_add_minion(Minion const&);
+  void do_buff_minion(bool enemy, MinionRef const& ref, Minion const& buff);
   void do_end_input();
 };
 
@@ -150,12 +151,7 @@ void REPL::parse_line(StringParser& in) {
     Minion buff;
     bool enemy = in.match("enemy");
     if (parse_minion_ref(in,ref) && parse_buffs(in,buff) && in.parse_end()) {
-      int n = 0;
-      ref.for_each(players[enemy ? 1 : 0], [&](Minion& m){
-        m.buff(buff);
-        n++;
-      });
-      out << "Modified " << n << " minion" << (n == 1 ? "" : "s") << endl;
+      do_buff_minion(enemy,ref,buff);
     }
   } else if (in.match("run") || in.match("simulate")) {
     in.match(":"); // optional
@@ -339,8 +335,19 @@ void REPL::do_add_minion(Minion const& m) {
     error() << "Player already has a full board" << endl;
   } else {
     players[current_player].append(m);
+    active_battle.reset();
     used = false;
   }
+}
+
+void REPL::do_buff_minion(bool enemy, MinionRef const& ref, Minion const& buff) {
+  int n = 0;
+  ref.for_each(players[enemy ? 1 : 0], [&](Minion& m){
+    m.buff(buff);
+    n++;
+  });
+  out << "Modified " << n << " minion" << (n == 1 ? "" : "s") << endl;
+  active_battle.reset();
 }
 
 void print_stats(ostream& out, ScoreSummary const& stats, vector<int> const& results) {

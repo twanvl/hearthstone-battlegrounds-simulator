@@ -2,6 +2,7 @@
 #include "minion_info.hpp"
 #include <algorithm>
 using std::min;
+using std::max;
 
 // -----------------------------------------------------------------------------
 // Minion instances
@@ -89,8 +90,13 @@ struct Minion {
     this->divine_shield = this->divine_shield || b.divine_shield;
     this->poison = this->poison || b.poison;
     this->windfury = this->windfury || b.windfury;
+    this->reborn = this->reborn || b.reborn;
     this->attack_buff += b.attack_buff;
     this->health_buff += b.health_buff;
+    this->deathrattle_murlocs = max(this->deathrattle_murlocs, b.deathrattle_murlocs);
+    this->add_deathrattle_microbots(b.deathrattle_microbots);
+    this->add_deathrattle_golden_microbots(b.deathrattle_golden_microbots);
+    this->add_deathrattle_plants(b.deathrattle_plants);
   }
 
   void aura_buff(int attack, int health) {

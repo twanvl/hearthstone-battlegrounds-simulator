@@ -294,5 +294,13 @@ void Battle::recompute_auras(int player) {
   board[player].for_each_with_pos([&,player](int pos, Minion& m) {
     recompute_aura_from(m, player, pos);
   });
+  board[player].for_each([](Minion& m) {
+    if (m.invalid_aura) {
+      m.invalid_aura = false;
+      // stats didn't include aura, now that we have recomputed aura effects, we can compensate
+      m.attack -= m.attack_aura;
+      m.health -= m.health_aura;
+    }
+  });
 }
 

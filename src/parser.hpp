@@ -394,8 +394,11 @@ bool parse_minion(StringParser& in, Minion& m) {
   }
   // construct
   m = Minion(type, golden);
-  if (attack != -1) m.attack = attack;
-  if (health != -1) m.health = health;
+  if (attack != -1) {
+    m.attack = attack;
+    m.health = health;
+    m.invalid_aura = true;
+  }
   // buff?
   if (in.match(",")) {
     if (!parse_buffs(in, m)) return false;

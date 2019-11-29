@@ -18,32 +18,37 @@ struct Minion {
   unsigned deathrattle_microbots : 3;
   unsigned deathrattle_golden_microbots : 3;
   unsigned deathrattle_plants  : 3; // from adapt
-  int attack_buff : 8, health_buff : 8; // temporary buffs from auras, at most 7*4
+  int attack_aura : 8; // temporary buffs from auras, at most 6*4+13*4
+  int health_aura : 7;
+  bool invalid_aura : 1; // the stats are forced to a given value which includes auras
 
-  Minion() {
-    this->type = MinionType::None;
-    this->attack = 0;
-    this->health = 0;
-    this->attack_buff = 0;
-    this->health_buff = 0;
-    this->taunt  = false;
-    this->divine_shield = false;
-    this->poison = false;
-    this->windfury = false;
-    this->reborn = false;
-    this->deathrattle_murlocs = 0;
-    this->deathrattle_microbots = 0;
-    this->deathrattle_golden_microbots = 0;
-    this->deathrattle_plants = 0;
-  }
+  constexpr Minion()
+    : attack(0)
+    , health(0)
+    , type(MinionType::None)
+    , golden(false)
+    , taunt(false)
+    , divine_shield(false)
+    , poison(false)
+    , windfury(false)
+    , reborn(false)
+    , deathrattle_murlocs(0)
+    , deathrattle_microbots(0)
+    , deathrattle_golden_microbots(0)
+    , deathrattle_plants(0)
+    , attack_aura(0)
+    , health_aura(0)
+    , invalid_aura(false)
+  {}
   Minion(MinionType type, bool golden = false) {
     this->type = type;
     this->golden = golden;
     MinionInfo const& info = ::info(type);
     this->attack = info.attack_for(golden);
     this->health = info.health_for(golden);
-    this->attack_buff = 0;
-    this->health_buff = 0;
+    this->attack_aura = 0;
+    this->health_aura = 0;
+    this->invalid_aura = false;
     this->taunt  = info.taunt;
     this->divine_shield = info.divine_shield;
     this->poison = info.poison;
@@ -91,8 +96,8 @@ struct Minion {
     this->poison = this->poison || b.poison;
     this->windfury = this->windfury || b.windfury;
     this->reborn = this->reborn || b.reborn;
-    this->attack_buff += b.attack_buff;
-    this->health_buff += b.health_buff;
+    this->attack_aura += b.attack_aura;
+    this->health_aura += b.health_aura;
     this->deathrattle_murlocs = max(this->deathrattle_murlocs, b.deathrattle_murlocs);
     this->add_deathrattle_microbots(b.deathrattle_microbots);
     this->add_deathrattle_golden_microbots(b.deathrattle_golden_microbots);
@@ -102,46 +107,24 @@ struct Minion {
   void aura_buff(int attack, int health) {
     this->attack += attack;
     this->health += health;
-    this->attack_buff += attack;
-    this->health_buff += health;
+    this->attack_aura += attack;
+    this->health_aura += health;
   }
   void clear_aura_buff() {
-    this->attack -= this->attack_buff;
-    this->health -= this->health_buff;
-    this->attack_buff = 0;
-    this->health_buff = 0;
+    this->attack -= this->attack_aura;
+    this->health -= this->health_aura;
+    this->attack_aura = 0;
+    this->health_aura = 0;
   }
 
-  Minion& set_stats(int attack, int health, int attack_buff=0, int health_buff=0) {
-    this->attack = attack;
-    this->health = health;
-    this->attack_buff = attack_buff;
-    this->health_buff = health_buff;
-    return *this;
-  }
-  Minion& set_taunt() {
-    this->taunt = true;
-    return *this;
-  }
-  Minion& set_divine_shield() {
-    this->divine_shield = true;
-    return *this;
-  }
-  Minion& set_poison() {
-    this->poison = true;
-    return *this;
-  }
-  Minion& add_deathrattle_microbots(int n=3) {
+  void add_deathrattle_microbots(int n=3) {
     this->deathrattle_microbots = min(this->deathrattle_microbots+n,7);
-    return *this;
   }
-  Minion& add_deathrattle_golden_microbots(int n=3) {
+  void add_deathrattle_golden_microbots(int n=3) {
     this->deathrattle_golden_microbots = min(this->deathrattle_golden_microbots+n,7);
-    return *this;
   }
-  Minion& add_deathrattle_plants(int n=2) {
+  void add_deathrattle_plants(int n=2) {
     this->deathrattle_plants = min(this->deathrattle_plants+n,7);
-    return *this;
   }
 
   // full dump/construction
@@ -152,8 +135,9 @@ struct Minion {
     , taunt(taunt), divine_shield(divine_shield), poison(poison), windfury(windfury), reborn(reborn)
     , deathrattle_murlocs(deathrattle_murlocs), deathrattle_microbots(deathrattle_microbots)
     , deathrattle_golden_microbots(deathrattle_golden_microbots), deathrattle_plants(deathrattle_plants)
-    , attack_buff(0)
-    , health_buff(0)
+    , attack_aura(0)
+    , health_aura(0)
+    , invalid_aura(false)
   {}
 };
 

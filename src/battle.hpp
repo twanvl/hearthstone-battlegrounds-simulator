@@ -87,7 +87,7 @@ struct Battle {
 
   // Hero powers
   void do_hero_powers();
-  void do_hero_power(HeroPower, int player);
+  void do_hero_power(HeroType, int player);
 
   // Auras
   void recompute_aura_from(Minion& m, int player, int pos);

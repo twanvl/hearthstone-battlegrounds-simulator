@@ -87,13 +87,13 @@ struct HeroInfo {
   HeroPowerInfo hero_power;
 };
 
-extern const HeroInfo hero_info[HeroPower_count];
+extern const HeroInfo hero_info[HeroType_count];
 
-inline const char* name(HeroPower x) {
+inline const char* name(HeroType x) {
   return hero_info[static_cast<int>(x)].name;
 }
 
-inline ostream& operator << (ostream& s, HeroPower x) {
+inline ostream& operator << (ostream& s, HeroType x) {
   return s << name(x);
 }
 

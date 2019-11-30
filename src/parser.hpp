@@ -250,10 +250,10 @@ bool match_minion_type(StringParser& in, MinionType& out) {
   return false;
 }
 
-bool match_hero_power(StringParser& in, HeroPower& out) {
-  for (int i=0; i < HeroPower_count; ++i) {
+bool match_hero_type(StringParser& in, HeroType& out) {
+  for (int i=0; i < HeroType_count; ++i) {
     if (in.match(hero_info[i].name) || in.match(hero_info[i].hero_power.name)) {
-      out = static_cast<HeroPower>(i);
+      out = static_cast<HeroType>(i);
       return true;
     }
   }
@@ -278,9 +278,9 @@ bool parse_minion_type(StringParser& in, MinionType& out) {
   return true;
 }
 
-bool parse_hero_power(StringParser& in, HeroPower& out) {
-  if (!match_hero_power(in,out)) {
-    in.unknown("hero power");
+bool parse_hero_type(StringParser& in, HeroType& out) {
+  if (!match_hero_type(in,out)) {
+    in.unknown("hero / hero power");
     return false;
   }
   return true;

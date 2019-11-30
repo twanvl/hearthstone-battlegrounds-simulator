@@ -270,12 +270,13 @@ void Battle::on_summoned(Minion& summoned, int player) {
 
 void Battle::do_hero_powers() {
   for (int player=0; player<2; ++player) {
-    HeroPower& hp = board[player].hero_power;
-    if (verbose >= 2 && log && hp != HeroPower::None) {
-      *log << "Hero power " << hp << " for " << player << endl;
+    if (board[player].use_hero_power) {
+      if (verbose >= 2 && log) {
+        *log << "Hero power " << board[player].hero << " for " << player << endl;
+      }
+      do_hero_power(board[player].hero, player);
+      board[player].use_hero_power = false;
     }
-    do_hero_power(hp, player);
-    hp = HeroPower::None;
   }
 }
 

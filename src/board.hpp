@@ -162,16 +162,18 @@ struct Board : MinionArray<BOARDSIZE> {
   // we need enough for cleave attacks
   int track_pos[NUM_EXTRA_POS] = {-1};
   // hero power to start with
-  HeroPower hero_power = HeroPower::None;
+  HeroType hero = HeroType::None;
+  bool use_hero_power = false;
   // level of the player (or 0 if unknown)
   int level = 0;
   // health of the player
   int health = 0;
 
   Board() {}
-  Board(std::initializer_list<Minion> minions, HeroPower hero_power, int level, int health)
+  Board(std::initializer_list<Minion> minions, HeroType hero, bool use_hero_power, int level, int health)
     : MinionArray<BOARDSIZE>(minions)
-    , hero_power(hero_power)
+    , hero(hero)
+    , use_hero_power(use_hero_power)
     , level(level)
     , health(health)
   {}
@@ -330,8 +332,8 @@ struct Board : MinionArray<BOARDSIZE> {
 };
 
 inline ostream& operator << (ostream& s, Board const& b) {
-  if (b.hero_power != HeroPower::None) {
-    s << "heropower " << b.hero_power << endl;
+  if (b.use_hero_power) {
+    s << "heropower " << b.hero << endl;
   }
   for (int i=0; i<BOARDSIZE; ++i) {
     if (b.minions[i].exists()) {

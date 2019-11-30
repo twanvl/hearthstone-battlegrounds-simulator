@@ -221,13 +221,13 @@ def write_enums_hpp(minions, heroes):
     f.write("const int MinionType_count = {};\n\n".format(len(minions)))
 
     f.write("// -----------------------------------------------------------------------------\n")
-    f.write("// Hero powers\n")
+    f.write("// Heroes and hero powers\n")
     f.write("// -----------------------------------------------------------------------------\n\n")
-    f.write("enum class HeroPower {\n")
+    f.write("enum class HeroType {\n")
     for e in heroes:
       f.write("  {},\n".format(e.enum))
     f.write("};\n\n")
-    f.write("const int HeroPower_count = {};\n".format(len(heroes)))
+    f.write("const int HeroType_count = {};\n".format(len(heroes)))
 
 # ------------------------------------------------------------------------------
 # enum_data.cpp

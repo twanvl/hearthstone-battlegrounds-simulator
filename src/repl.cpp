@@ -136,9 +136,11 @@ void REPL::parse_line(StringParser& in) {
     out << in.str << endl;
   } else if (in.match("hp") || in.match("hero-power")) {
     in.match(":"); // optional
-    HeroPower hp;
-    if (parse_hero_power(in, hp) && in.parse_end()) {
-      players[current_player].hero_power = hp;
+    HeroType hero;
+    if (parse_hero_type(in, hero) && in.parse_end()) {
+      players[current_player].hero = hero;
+      players[current_player].use_hero_power = hero != HeroType::None;
+      active_battle.reset();
     }
   } else if (in.match("actual") || in.match("outcome")) {
     in.match(":"); // optional
@@ -487,8 +489,8 @@ void REPL::do_list_minions() {
 }
 
 void REPL::do_list_hero_powers() {
-  for (int i=1; i < HeroPower_count; ++i) {
-    out << hero_info[i].name << endl;
+  for (int i=1; i < HeroType_count; ++i) {
+    out << hero_info[i].name << " / " << hero_info[i].hero_power.name << endl;
   }
 }
 

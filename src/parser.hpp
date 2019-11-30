@@ -193,8 +193,8 @@ struct StringParser {
     expected("non-negative number");
     return false;
   }
-  bool parse_string(std::string& out) {
-    if (match_string(out)) return true;
+  bool parse_string(std::string& out, char end=0) {
+    if (match_string(out,end)) return true;
     expected("string");
     return false;
   }

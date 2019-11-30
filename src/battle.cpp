@@ -45,6 +45,7 @@ void Battle::single_attack_by(int player, int from) {
   bool cleave = attacker.cleave();
   // find a target
   Board& enemy = board[1-player];
+  if (enemy.empty()) return;
   int target = attacker.type == MinionType::ZappSlywick
                  ? enemy.lowest_attack_target(target_rng)
                  : enemy.random_attack_target(target_rng);

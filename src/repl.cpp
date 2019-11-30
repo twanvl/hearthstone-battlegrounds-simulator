@@ -69,7 +69,7 @@ struct REPL {
   void do_optimize_order(Objective objective, int runs = -1);
   void do_optimize_buff_placement(Minion const& buff, Objective objective, int runs = -1);
   void do_add_minion(Minion const&);
-  void do_buff_minion(bool enemy, MinionRef const& ref, Minion const& buff);
+  void do_buff_minion(MinionAndSideRef const& ref, Minion const& buff);
   void do_end_input();
 };
 
@@ -147,11 +147,10 @@ void REPL::parse_line(StringParser& in) {
       actual_outcomes.push_back(n);
     }
   } else if (in.match("give")) {
-    MinionRef ref;
+    MinionAndSideRef ref;
     Minion buff;
-    bool enemy = in.match("enemy");
-    if (parse_minion_ref(in,ref) && parse_buffs(in,buff) && in.parse_end()) {
-      do_buff_minion(enemy,ref,buff);
+    if (parse_minion_and_side_ref(in,ref) && parse_buffs(in,buff) && in.parse_end()) {
+      do_buff_minion(ref,buff);
     }
   } else if (in.match("run") || in.match("simulate")) {
     in.match(":"); // optional
@@ -340,9 +339,9 @@ void REPL::do_add_minion(Minion const& m) {
   }
 }
 
-void REPL::do_buff_minion(bool enemy, MinionRef const& ref, Minion const& buff) {
+void REPL::do_buff_minion(MinionAndSideRef const& ref, Minion const& buff) {
   int n = 0;
-  ref.for_each(players[enemy ? 1 : 0], [&](Minion& m){
+  ref.for_each(players, [&](Minion& m){
     m.buff(buff);
     n++;
   });

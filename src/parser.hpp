@@ -466,6 +466,20 @@ struct MinionRef {
   }
 };
 
+struct MinionAndSideRef {
+  bool enemy = false;
+  MinionRef ref;
+
+  template <typename Fun>
+  void for_each(Board& player, Board& enemy, Fun fun) const {
+    ref.for_each(this->enemy ? enemy : player, fun);
+  }
+  template <typename Fun>
+  void for_each(Board players[2], Fun fun) const {
+    ref.for_each(players[this->enemy ? 1 : 0], fun);
+  }
+};
+
 bool parse_minion_ref(StringParser& in, MinionRef& out) {
   Tribe tribe;
   if (match_tribe(in, tribe)) {
@@ -492,5 +506,12 @@ bool parse_minion_ref(StringParser& in, MinionRef& out) {
   }
   in.expected("minion reference (position, tribe or name)");
   return false;
+}
+
+bool parse_minion_and_side_ref(StringParser& in, MinionAndSideRef& out) {
+  out.enemy = false;
+  if (in.match("enemy")) out.enemy = true;
+  if (!parse_minion_ref(in,out.ref)) return false;
+  return true;
 }
 

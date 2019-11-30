@@ -40,25 +40,29 @@ struct Minion {
     , health_aura(0)
     , invalid_aura(false)
   {}
-  Minion(MinionType type, bool golden = false) {
-    this->type = type;
-    this->golden = golden;
-    MinionInfo const& info = ::info(type);
-    this->attack = info.attack_for(golden);
-    this->health = info.health_for(golden);
-    this->attack_aura = 0;
-    this->health_aura = 0;
-    this->invalid_aura = false;
-    this->taunt  = info.taunt;
-    this->divine_shield = info.divine_shield;
-    this->poison = info.poison;
-    this->windfury = info.windfury;
-    this->reborn = false;
-    this->deathrattle_murlocs = 0;
-    this->deathrattle_microbots = 0;
-    this->deathrattle_golden_microbots = 0;
-    this->deathrattle_plants = 0;
-  }
+  Minion(MinionType type, bool golden = false)
+    : Minion(type, info(type), golden)
+  {}
+private:
+  inline constexpr Minion(MinionType type, MinionInfo const& info, bool golden)
+    : attack(info.attack_for(golden))
+    , health(info.health_for(golden))
+    , type(type)
+    , golden(golden)
+    , taunt(info.taunt)
+    , divine_shield(info.divine_shield)
+    , poison(info.poison)
+    , windfury(info.windfury)
+    , reborn(false)
+    , deathrattle_murlocs(0)
+    , deathrattle_microbots(0)
+    , deathrattle_golden_microbots(0)
+    , deathrattle_plants(0)
+    , attack_aura(0)
+    , health_aura(0)
+    , invalid_aura(false)
+  {}
+public:
 
   Minion new_copy() const {
     return Minion(type, golden);

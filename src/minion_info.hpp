@@ -27,7 +27,7 @@ inline ostream& operator << (ostream& s, Tribe t) {
 // Minion type info
 // -----------------------------------------------------------------------------
 
-inline int double_if_golden(int x, bool golden) {
+constexpr int double_if_golden(int x, bool golden) {
   return golden ? 2*x : x;
 }
 
@@ -42,10 +42,10 @@ struct MinionInfo {
   //bool battlecry;
   //bool affects_auras;
 
-  inline int attack_for(bool golden) const {
+  constexpr int attack_for(bool golden) const {
     return double_if_golden(attack, golden);
   }
-  inline int health_for(bool golden) const {
+  constexpr int health_for(bool golden) const {
     return double_if_golden(health, golden);
   }
 };

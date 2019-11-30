@@ -332,6 +332,8 @@ bool parse_buffs(StringParser& in, Minion& m) {
       m.poison = true;
     } else if (in.match("windfury")) {
       m.windfury = true;
+    } else if (in.match("reborn")) {
+      m.reborn = true;
     } else if (in.match("microbots")) {
       m.add_deathrattle_microbots();
     } else if (in.match("golden microbots")) {

@@ -30,8 +30,8 @@ void dump(ostream& out, MinionType type) {
   out << "MinionType::";
   dump_enum_name(out,::name(type));
 }
-void dump(ostream& out, HeroPower hp) {
-  out << "HeroPower::";
+void dump(ostream& out, HeroType hp) {
+  out << "HeroType::";
   dump_enum_name(out,::name(hp));
 }
 
@@ -59,8 +59,8 @@ void dump(ostream& out, Board const& b) {
   out << "{{";
   b.for_each([&](Minion const& m) { dump(out,m); out << ",\n    "; });
   out << "},";
-  dump(out, b.hero_power);
-  out << "," << b.level << "," << b.health << "}";
+  dump(out, b.hero);
+  out << "," << b.use_hero_power << "," << b.level << "," << b.health << "}";
 }
 
 void dump_binary(ostream& out, const char* data, int n) {
@@ -91,7 +91,9 @@ void generate_output(ostream& out, Boards const& boards) {
   if (BINARY) {
     out << "const char board_data[] = {" << endl;
     for (auto const& b : boards) {
-      out << dec << "// Turn " << b.turn << ", " << "stats: " << b.board.total_stats() << endl;
+      out << dec << "// Turn " << b.turn << ", " << "stats: " << b.board.total_stats();
+      if (!b.label.empty()) out << ", " << b.label;
+      out << endl;
       dump_binary(out, (const char*)&b.board, sizeof(Board));
       out << endl;
     }
@@ -117,12 +119,61 @@ void generate_output(ostream& out, Boards const& boards) {
     out << "  static_cast<const Board*>(board_data) + " << pos << "," << " // turn " << turn << endl;
   }
   out << "};" << endl;
-  out << "const int num_turns_with_boards = " << turn << ";" << endl;
+  out << "const int num_turns_with_boards = " << (turn-2) << ";" << endl;
 }
 
 // -----------------------------------------------------------------------------
 // Board parser
 // -----------------------------------------------------------------------------
+
+bool parse_board_definition(StringParser& in, Board& board) {
+  if (in.match_end()) {
+    // empty line or comment
+  } else if (in.match("*")) {
+    // define minion
+    Minion m;
+    if (parse_minion(in,m) && in.parse_end()) {
+      board.append(m);
+    }
+  } else if (in.match("board")) {
+  } else if (in.match("hp") || in.match("hero-power")) {
+    in.match(":"); // optional
+    HeroType hero;
+    if (parse_hero_type(in, hero) && in.parse_end()) {
+      board.hero = hero;
+      board.use_hero_power = true;
+    }
+  } else if (in.match("level")) {
+    in.match(":"); // optional
+    int n = 0;
+    if (in.parse_non_negative(n) && in.parse_end()) {
+      board.level = n;
+    }
+  } else if (in.match("health")) {
+    in.match(":"); // optional
+    int n = 0;
+    if (in.parse_non_negative(n) && in.parse_end()) {
+      board.health = n;
+    }
+  } else {
+    return false;
+  }
+  return true;
+}
+
+bool parse_board_with_turn(StringParser& in, BoardWithTurn& board) {
+  if (in.match("turn")) {
+    in.match(":"); // optional
+    int n = 0;
+    if (in.parse_non_negative(n)) {
+      in.skip_ws();
+      board.label = in.str;
+      board.turn = n;
+    }
+    return true;
+  }
+  return parse_board_definition(in, board.board);
+}
 
 void load_boards(istream& lines, const char* filename, Boards& boards) {
   ErrorHandler error(cerr, filename);
@@ -137,54 +188,17 @@ void load_boards(istream& lines, const char* filename, Boards& boards) {
     StringParser in(line.c_str(), error);
 
     // parse line
-    if (in.match_end()) {
-      // empty line or comment
-    } else if (in.match("*")) {
-      // define minion
-      Minion m;
-      if (parse_minion(in,m) && in.parse_end()) {
-        board.board.append(m);
-      }
+    if (parse_board_with_turn(in, board)) {
+      continue;
     } else if (in.peek() == '=') {
       if (board.turn > 0) {
         boards.push_back(board);
       }
       board = BoardWithTurn();
       // board separator
-    } else if (in.match("board")) {
-    } else if (in.match("hp") || in.match("hero-power")) {
-      in.match(":"); // optional
-      HeroPower hp;
-      if (parse_hero_power(in, hp) && in.parse_end()) {
-        board.board.hero_power = hp;
-      }
-    } else if (in.match("level")) {
-      in.match(":"); // optional
-      int n = 0;
-      if (in.parse_non_negative(n) && in.parse_end()) {
-        board.board.level = n;
-      }
-    } else if (in.match("health")) {
-      in.match(":"); // optional
-      int n = 0;
-      if (in.parse_non_negative(n) && in.parse_end()) {
-        board.board.health = n;
-      }
-    } else if (in.match("turn")) {
-      in.match(":"); // optional
-      int n = 0;
-      if (in.parse_non_negative(n)) {
-        in.skip_ws();
-        board.label = in.str;
-        board.turn = n;
-      }
     } else {
       in.unknown("command");
     }
-  }
-
-  if (board.turn > 0) {
-    boards.push_back(board);
   }
 }
 

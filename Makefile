@@ -19,6 +19,9 @@ all: hsbg
 hsbg: $(OBJECTS)
 	$(GXX) $(GXX_FLAGS) $^ -o $@
 
+debug: $(SOURCES)
+	$(GXX) -Wall -Wextra -Wno-unused-parameter -pedantic -std=c++11 -g $^ -o hsbg
+
 # Compiling for web
 
 web: web/hsbg.js
@@ -37,8 +40,7 @@ src/enum_data.cpp: scripts/generate_enum_data.py hsdata/CardDefs.xml
 
 # Generate board data
 
-.SECONDARY: scripts/generate_board_data
-scripts/generate_board_data: src/enums.hpp src/board.hpp
+scripts/generate_board_data: src/generate_board_data.o src/enums.hpp src/board.hpp
 	$(GXX) $(GXX_FLAGS) $(LIB_SOURCES:.cpp=.o) src/generate_board_data.o -o $@
 
 BOARD_DATA = data/board*.txt
@@ -47,8 +49,8 @@ BOARD_DATA = data/board*.txt
 src/board_data.cpp: scripts/generate_board_data $(BOARD_DATA)
 	scripts/generate_board_data $(BOARD_DATA) > $@
 
-log_parser: src/log_parser.o *.hpp
-	$(GXX) $(GXX_FLAGS) $(LIB_SOURCES) log_parser.cpp -O -o $@
+log_parser: $(LIB_SOURCES:.cpp=.o) src/log_parser.o
+	$(GXX) $(GXX_FLAGS) $^ -o $@
 
 # Cleanup
 
@@ -56,4 +58,7 @@ clean:
 	rm -rf src/*.o
 	rm -rf web/hsbg.js
 	rm -rf web/*.wasm
+
+distclean: clean
+	rm -rf src/enum_data.cpp src/enums.hpp src/board_data.cpp
 

@@ -332,6 +332,12 @@ struct Board : MinionArray<BOARDSIZE> {
 };
 
 inline ostream& operator << (ostream& s, Board const& b) {
+  if (b.level) {
+    s << "level " << b.level << endl;
+  }
+  if (b.health) {
+    s << "health " << b.health << endl;
+  }
   if (b.use_hero_power) {
     s << "heropower " << b.hero << endl;
   }

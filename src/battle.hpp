@@ -36,12 +36,15 @@ struct Battle {
     return turn >= 0;
   }
   bool done() const {
-    return board[0].empty() || board[1].empty();
+    return board[0].empty() || board[1].empty() || turn >= 2;
   }
 
   // Positive: player 0 won, negative, player 1 won, score is total stars remaining
   int score() const {
-    return board[0].total_stars() - board[1].total_stars();
+    int stars0 = board[0].total_stars();
+    int stars1 = board[1].total_stars();
+    if (stars0 > 0 && stars1 > 0) return 0;
+    return stars0 - stars1;
   }
 
   // Simulate a battle
@@ -50,7 +53,7 @@ struct Battle {
   void start();
 
   // Attacking
-  void attack_round();
+  bool attack_round(); // return true if an attack happened
   void single_attack_by(int player, int pos);
 
   // Summon minions

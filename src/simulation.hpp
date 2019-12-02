@@ -12,12 +12,27 @@ using std::vector;
 
 const int DEFAULT_NUM_RUNS = 1000;
 
+enum class Flipped { Flipped };
+
 struct ScoreSummary {
   int num_runs = 0;
   int total_stars[2] = {0}; // #stars by which player i has won
   int damage_taken[2] = {0};
   int num_wins[2] = {0};
   int num_deaths[2] = {0};
+
+  ScoreSummary() {}
+  ScoreSummary(ScoreSummary const& stats, Flipped flipped)
+    : num_runs(stats.num_runs)
+    , total_stars{stats.total_stars[1],stats.total_stars[0]}
+    , damage_taken{stats.damage_taken[1],stats.damage_taken[0]}
+    , num_wins{stats.num_wins[1],stats.num_wins[0]}
+    , num_deaths{stats.num_deaths[1],stats.num_deaths[0]}
+  {}
+
+  ScoreSummary flipped() const {
+    return ScoreSummary(*this,Flipped::Flipped);
+  }
 
   int num_draws() const {
     return num_runs - num_wins[0] - num_wins[1];
@@ -40,22 +55,26 @@ struct ScoreSummary {
   double mean_score() const {
     return (double)(total_stars[0] - total_stars[1]) / num_runs;
   }
+  double damage_score() const {
+    return mean_damage_taken(1) / 7.0 - mean_damage_taken(0);
+  }
 
   void add_run(Battle const& b) {
     num_runs++;
     int stars[2] = {b.board[0].total_stars(), b.board[1].total_stars()};
-    for (int player=0; player<2; ++player) {
-      // if player has stars remaining on the board, they have won
-      if (stars[player] > 0) {
-        num_wins[player]++;
-        total_stars[player] += stars[player];
-        int dmg = stars[player] + b.board[player].level;
-        damage_taken[1-player] += dmg;
-        if (dmg >= b.board[1-player].health) {
-          num_deaths[1-player]++;
-        }
+    if ((stars[0] > 0) != (stars[1] > 0)) {
+      // only one player has minions remaining (and therefore stars)
+      int winner = stars[0] > 0 ? 0 : 1;
+      int loser = 1-winner;
+      num_wins[winner]++;
+      total_stars[winner] += stars[winner];
+      int dmg = stars[winner] + b.board[winner].level;
+      damage_taken[loser] += dmg;
+      if (dmg >= b.board[loser].health) {
+        num_deaths[loser]++;
       }
     }
+    // otherwise, both players have minions remaining, or neither has minions, game is a draw
   }
 };
 

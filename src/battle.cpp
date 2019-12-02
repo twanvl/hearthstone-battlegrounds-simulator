@@ -7,8 +7,22 @@ using std::endl;
 
 void Battle::run() {
   start();
+  int round = 0;
+  bool missed_prev = 0;
   while (!done()) {
-    attack_round();
+    round++;
+    bool ok = attack_round();
+    if (missed_prev && !ok) {
+      turn = 2; // indicate battle is done
+      return;
+    }
+    missed_prev = !ok;
+    // track battles that never end
+    if (round > 1000000) {
+      std::cerr << "ERROR: infinite loop?" << endl;
+      std::cerr << *this;
+      break;
+    }
   }
 }
 
@@ -19,14 +33,29 @@ void Battle::start() {
   do_hero_powers();
 }
 
-void Battle::attack_round() {
-  // attacker
-  Board& active = board[turn];
-  if (active.next_attacker >= BOARDSIZE || !active.minions[active.next_attacker].exists()) {
-    active.next_attacker = 0;
+int find_attacker(Board const& board) {
+  int from = board.next_attacker;
+  for (int tries=0; tries<BOARDSIZE; ++tries) {
+    if (from >= BOARDSIZE || !board.minions[from].exists()) {
+      from = 0;
+    }
+    if (board.minions[from].exists() && board.minions[from].attack > 0) {
+      return from;
+    }
   }
-  int from = active.next_attacker;
-  active.next_attacker++;
+  return -1;
+}
+
+bool Battle::attack_round() {
+  // find attacker
+  Board& active = board[turn];
+  int from = find_attacker(active);
+  if (from == -1) {
+    // no minions that can attack, switch players
+    turn = 1 - turn;
+    return false;
+  }
+  // info on attacker
   bool windfury = active.minions[from].windfury;
   active.track_pos[0] = from; // track if this minion stays alive
   // do attack
@@ -38,6 +67,7 @@ void Battle::attack_round() {
   }
   // switch players
   turn = 1 - turn;
+  return true;
 }
 
 void Battle::single_attack_by(int player, int from) {

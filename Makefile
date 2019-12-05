@@ -32,6 +32,7 @@ web/hsbg.js: $(SOURCES)
 # Generate enum data
 
 hsdata/CardDefs.xml:
+	git submodule init
 	git submodule update
 
 src/enums.hpp: src/enum_data.cpp

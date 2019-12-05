@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 // -----------------------------------------------------------------------------
 // Random number generator
@@ -30,6 +31,14 @@ public:
     RNG out = {s};
     jump();
     return out;
+  }
+
+  template <typename T>
+  void shuffle(T* data, int n) {
+    for (int i=1; i<n; ++i) {
+      int j = random(i+1);
+      if (i != j) std::swap(data[i], data[j]);
+    }
   }
 };
 

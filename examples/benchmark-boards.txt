@@ -1,0 +1,74 @@
+# Some assorted board states from various runs
+# Used for benchmarking
+
+Turn 1
+Health 38
+Level 1
+Board
+* Vulgar Homunculus
+==========
+Turn 6
+Health 40
+Level 4
+* Goldrinn, the Great Wolf
+* Alley Cat
+* Alley Cat
+* Scavenging Hyena
+* Golden Old Murk Eye
+===================================
+Turn 9
+Health 28
+Level 5
+Board
+* 14/13 Nightmare Amalgam
+* 8/10 Nathrezim Overseer
+* 8/10 Imp Gang Boss
+* 9/8 Nightmare Amalgam
+* 11/9 Mal'Ganis
+* 11/9 Mal'Ganis
+* 3/2 Annoy-o-Tron
+===================================
+Turn 7
+Health 26
+Level 4
+Board
+* Spawn of N'Zoth
+* 8/5 Cobalt Guardian, divine shield
+* Cobalt Guardian, divine shield
+* Phalanx Commander
+* 3/2 Annoy-o-Tron
+* 6/6 Vulgar Homunculus
+===================================
+Turn 15
+Health 2
+Level 5
+Board
+* 12/13 Foe Reaper 4000, taunt, divine shield
+* Lightfang Enforcer
+* 14/5 Cobalt Guardian, divine shield
+* 14/5 Cobalt Guardian, divine shield
+* 12/14 golden Security Rover
+* 8/10 golden Junkbot
+* 20/15 Nightmare Amalgam, taunt, divine shield, microbots, poisonous
+===================================
+turn 11 enemy Bartendotron
+level 5
+health 6
+* 7/3 Pogo-Hopper
+* 6/10 Golden Screwjank Clunker
+* 4/6 Security Rover
+* 14/12 Golden Annoy-o-Tron, taunt, divine shield
+* 5/4 Psych-o-Tron, taunt, divine shield
+* 3/6 Kangor's Apprentice
+* 1/5 Junkbot
+===================================
+Turn 15
+Health 2
+Level 5
+Board
+* 14/5 Cobalt Guardian, divine shield
+* 14/5 Cobalt Guardian, divine shield
+* Bolvar, Fireblood
+* 4/6 Security Rover, taunt, microbots
+* 1/5 Junkbot
+* Ironhide Direhorn

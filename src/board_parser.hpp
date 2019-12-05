@@ -101,14 +101,19 @@ void load_boards(istream& lines, const char* filename, Boards& boards) {
   }
 }
 
+bool load_boards(char const* file, Boards& boards) {
+  std::ifstream in(file);
+  if (!in) {
+    std::cerr << "Error loading file " << file << endl;
+    return false;
+  }
+  load_boards(in, file, boards);
+  return true;
+}
+
 bool load_boards(int argc, char const** argv, Boards& boards) {
   for (int i=1; i<argc; ++i) {
-    std::ifstream in(argv[i]);
-    if (!in) {
-      std::cerr << "Error loading file " << argv[i] << endl;
-      return false;
-    }
-    load_boards(in, argv[i], boards);
+    load_boards(argv[i], boards);
   }
   std::sort(boards.begin(), boards.end());
   return true;

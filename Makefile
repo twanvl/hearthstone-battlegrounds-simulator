@@ -44,13 +44,23 @@ src/enum_data.cpp: scripts/generate_enum_data.py hsdata/CardDefs.xml
 scripts/generate_board_data: src/generate_board_data.o src/enums.hpp src/board.hpp
 	$(GXX) $(GXX_FLAGS) $(LIB_SOURCES:.cpp=.o) src/generate_board_data.o -o $@
 
-BOARD_DATA = data/board*.txt
+BOARD_DATA = $(wildcard data/board*.txt)
 
 .DELETE_ON_ERROR: src/board_data.cpp
 src/board_data.cpp: scripts/generate_board_data $(BOARD_DATA)
 	scripts/generate_board_data $(BOARD_DATA) > $@
 
+# log parser
+
 log_parser: $(LIB_SOURCES:.cpp=.o) src/log_parser.o
+	$(GXX) $(GXX_FLAGS) $^ -o $@
+
+# tournament
+
+tournament: $(LIB_SOURCES:.cpp=.o) src/tournament.o
+	$(GXX) $(GXX_FLAGS) $^ -o $@
+
+benchmark: $(LIB_SOURCES:.cpp=.o) src/benchmark.o
 	$(GXX) $(GXX_FLAGS) $^ -o $@
 
 # Cleanup

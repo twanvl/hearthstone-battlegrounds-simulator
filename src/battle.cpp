@@ -170,8 +170,8 @@ void Battle::damage_random_minion(int player, int amount) {
 }
 
 void Battle::damage_all(int player, int amount) {
-  board[player].for_each_with_pos([&](int pos, Minion&) {
-    damage(player, pos, amount);
+  board[player].for_each_with_pos([&](int pos, Minion& m) {
+    if (!m.dead()) damage(player, pos, amount);
   });
 }
 

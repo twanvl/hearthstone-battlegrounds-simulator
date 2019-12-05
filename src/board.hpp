@@ -103,7 +103,6 @@ struct MinionArray {
       fun(minions[i]);
     }
   }
-
   template <typename F>
   void for_each(F fun) const {
     for (int i=0; i<N && minions[i].exists(); ++i) {
@@ -131,17 +130,13 @@ struct MinionArray {
   template <typename F>
   void for_each_with_pos(F fun) {
     for (int i=0; i<N && minions[i].exists(); ++i) {
-      if (!minions[i].dead()) {
-        fun(i, minions[i]);
-      }
+      fun(i, minions[i]);
     }
   }
   template <typename F>
   void for_each_with_pos(F fun) const {
     for (int i=0; i<N && minions[i].exists(); ++i) {
-      if (!minions[i].dead()) {
-        fun(i, minions[i]);
-      }
+      fun(i, minions[i]);
     }
   }
 
@@ -320,12 +315,12 @@ struct Board : MinionArray<BOARDSIZE> {
   template <typename Condition>
   void aura_buff_others_if(int attack, int health, int pos, Condition c) {
     // Note: also buff "dead" minions, they might not die because of the buff
-    for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
-      if (i != pos && c(minions[i])) minions[i].aura_buff(attack,health);
-    }
+    for_each_with_pos([=](int i,Minion& m) {
+      if (i != pos && c(m)) m.aura_buff(attack,health);
+    });
   }
   void aura_buff_adjacent(int attack, int health, int pos) {
-    if (pos > 0 && minions[pos-1].exists()) minions[pos-1].aura_buff(attack,health);
+    if (pos > 0 &&           minions[pos-1].exists()) minions[pos-1].aura_buff(attack,health);
     if (pos+1 < BOARDSIZE && minions[pos+1].exists()) minions[pos+1].aura_buff(attack,health);
   }
 

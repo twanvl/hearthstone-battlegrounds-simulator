@@ -8,20 +8,20 @@ void Battle::recompute_aura_from(Minion& m, int player, int pos) {
   int factor = m.golden ? 2 : 1;
   switch (m.type) {
     case MinionType::DireWolfAlpha:
-      board[player].aura_buff_adjacent(factor, factor, pos);
+      board[player].aura_buff_adjacent(factor, 0, pos);
       break;
     case MinionType::MurlocWarleader:
       board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
       break;
     case MinionType::OldMurkEye: {
       // count murlocs for both players
-      int count = 0;
+      int count = -1; // exclude self
       for (int who=0; who<2; ++who) {
-        board[who].for_each_with_pos([=,&count](int i, Minion const& to) {
-          if ((who != player || pos != i) && to.has_tribe(Tribe::Murloc)) count++;
+        board[who].for_each([=,&count](Minion const& to) {
+          if (to.has_tribe(Tribe::Murloc)) count++;
         });
       }
-      m.buff(factor*count,0);
+      m.aura_buff(factor*count,0);
       break;
     }
     case MinionType::PhalanxCommander:

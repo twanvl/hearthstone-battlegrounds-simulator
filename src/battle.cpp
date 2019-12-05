@@ -27,7 +27,16 @@ void Battle::run() {
 }
 
 void Battle::start() {
-  turn = target_rng.random(2);
+  if (turn >= 0) return;
+  // player with most minions attacks first
+  int n0 = board[0].size(), n1 = board[1].size();
+  if (n0 > n1) {
+    turn = 0;
+  } else if (n0 < n1) {
+    turn = 1;
+  } else {
+    turn = target_rng.random(2);
+  }
   board[0].next_attacker = 0;
   board[1].next_attacker = 0;
   do_hero_powers();

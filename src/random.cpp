@@ -1,3 +1,9 @@
+#include "random.hpp"
+
+// -----------------------------------------------------------------------------
+// Random number generator: xoroshiro128+
+// -----------------------------------------------------------------------------
+
 /*  Written in 2016-2018 by David Blackman and Sebastiano Vigna (vigna@acm.org)
 
 To the extent possible under law, the author has dedicated all copyright
@@ -31,7 +37,6 @@ See <http://creativecommons.org/publicdomain/zero/1.0/>. */
    NOTE: the parameters (a=24, b=16, b=37) of this version give slightly
    better results in our test than the 2016 version (a=55, b=14, c=36).
 */
-#include "random.hpp"
 
 static inline uint64_t rotl(const uint64_t x, int k) {
 	return (x << k) | (x >> (64 - k));
@@ -97,4 +102,46 @@ void RNG::long_jump() {
 	s[1] = s1;
 }
 
+// -----------------------------------------------------------------------------
+// Low variance RNG
+// -----------------------------------------------------------------------------
+
+int LowVarianceRNG::random(int n) {
+  if (n <= 1) return 0;
+  if (budget < n) {
+    // don't keep subdividing
+    return rng.random(n);
+  } else {
+    if (cur->children.empty()) {
+      // initialize children
+      cur->i = n;
+      for (int i=0; i<n; ++i) {
+        cur->children.emplace_back(new Entry(i));
+      }
+    } else if (cur->children.size() != (size_t)n) {
+      //std::cerr << "requesting different random number range than previous runs" << std::endl;
+      return rng.random(n);
+    }
+    if (cur->i >= cur->children.size()) {
+      // reshuffle children
+      rng.shuffle(&*cur->children.begin(), n);
+      cur->i = 0;
+    }
+    // take next item from permutation
+    Entry& e = *cur->children[cur->i++];
+    cur = &e.tree;
+    budget /= n; // decrease budget
+    return e.value;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// Global rng
+// -----------------------------------------------------------------------------
+
 RNG global_rng;
+
+#if LOW_VARIANCE_RNG
+LowVarianceRNG global_battle_rng(global_rng,0);
+#endif

@@ -66,11 +66,11 @@ inline int stars(MinionType type) { return info(type).stars; }
 
 // random minion spawning
 
-MinionType random_one_cost_minion(RNG& rng);
-MinionType random_two_cost_minion(RNG& rng);
-MinionType random_four_cost_minion(RNG& rng);
-MinionType random_deathrattle_minion(RNG& rng);
-MinionType random_legendary_minion(RNG& rng);
+MinionType random_one_cost_minion(BattleRNG& rng);
+MinionType random_two_cost_minion(BattleRNG& rng);
+MinionType random_four_cost_minion(BattleRNG& rng);
+MinionType random_deathrattle_minion(BattleRNG& rng);
+MinionType random_legendary_minion(BattleRNG& rng);
 
 // -----------------------------------------------------------------------------
 // Hero power info
@@ -107,6 +107,6 @@ template <typename A, int N>
 constexpr int array_size(A(&)[N]) { return N; }
 
 template <typename A, int N>
-A random_element(A(& list)[N], RNG& rng) {
+A random_element(A(& list)[N], BattleRNG& rng) {
   return list[rng.random(array_size(list))];
 }

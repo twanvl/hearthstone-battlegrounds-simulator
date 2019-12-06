@@ -199,7 +199,7 @@ struct Board : MinionArray<BOARDSIZE> {
   // Targeting
   
   // target to attack
-  int random_attack_target(RNG& rng) const {
+  int random_attack_target(BattleRNG& rng) const {
     int num_taunts = 0, num_minions = 0;
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (minions[i].taunt) num_taunts++;
@@ -221,7 +221,7 @@ struct Board : MinionArray<BOARDSIZE> {
   }
 
   // minion with the lowest attack
-  int lowest_attack_target(RNG& rng) const {
+  int lowest_attack_target(BattleRNG& rng) const {
     int num_lowest = 0, lowest_attack = std::numeric_limits<int>::max();
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (minions[i].attack < lowest_attack) {
@@ -240,7 +240,7 @@ struct Board : MinionArray<BOARDSIZE> {
     return -1;
   }
 
-  int random_living_minion(RNG& rng) const {
+  int random_living_minion(BattleRNG& rng) const {
     int num_alive = 0;
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (!minions[i].dead()) {
@@ -274,14 +274,14 @@ struct Board : MinionArray<BOARDSIZE> {
   // Specific buffs
 
   template <typename F>
-  void for_random_living_minion(F fun, RNG& rng) {
+  void for_random_living_minion(F fun, BattleRNG& rng) {
     int i = random_living_minion(rng);
     if (i != -1) fun(minions[i]);
   }
-  void give_random_minion_divine_shield(RNG& rng) {
+  void give_random_minion_divine_shield(BattleRNG& rng) {
     for_random_living_minion([](Minion& m) { m.divine_shield = true; }, rng);
   }
-  void buff_random_minion(int attack, int health, RNG& rng) {
+  void buff_random_minion(int attack, int health, BattleRNG& rng) {
     for_random_living_minion([=](Minion& m) { m.buff(attack, health); }, rng);
   }
 

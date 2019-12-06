@@ -302,7 +302,7 @@ def write_minion_list(f, minions, name, filter):
     if filter(e):
       f.write("  MinionType::{},\n".format(e.enum))
   f.write("}};\n".format(name))
-  f.write("MinionType random_{}_minion(RNG& rng) {{\n".format(name))
+  f.write("MinionType random_{}_minion(BattleRNG& rng) {{\n".format(name))
   f.write("  return random_element({}_minions, rng);\n".format(name))
   f.write("}\n\n")
 

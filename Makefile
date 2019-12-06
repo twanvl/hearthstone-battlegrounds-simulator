@@ -3,7 +3,7 @@ GXX_FLAGS = -Wall -Wextra -Wno-unused-parameter -pedantic -std=c++11 -O2 -flto
 EMCC = emcc
 EMCC_FLAGS = $(GXX_FLAGS) --bind -s FILESYSTEM=0
 
-LIB_SOURCES = $(addprefix src/, enum_data.cpp minion_events.cpp hero_powers.cpp battle.cpp xoroshiro128plus.cpp)
+LIB_SOURCES = $(addprefix src/, enum_data.cpp minion_events.cpp hero_powers.cpp battle.cpp random.cpp)
 SOURCES = $(LIB_SOURCES) src/repl.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
@@ -65,6 +65,9 @@ benchmark: $(LIB_SOURCES:.cpp=.o) src/benchmark.o
 
 benchmark-profile: $(LIB_SOURCES) src/benchmark.cpp
 	$(GXX) $(GXX_FLAGS) -g -pg $^ -o $@
+
+variance-benchmark: $(LIB_SOURCES:.cpp=.o) src/variance_benchmark.o
+	$(GXX) $(GXX_FLAGS) $^ -o $@
 
 # Cleanup
 

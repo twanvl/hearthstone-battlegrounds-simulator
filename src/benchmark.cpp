@@ -27,7 +27,7 @@ void tournament_benchmark(Boards const& boards) {
   cout << "Time: " << setprecision(5) << t.count();
   cout << "    (";
   for (auto w : wr) {
-    cout << " " << w;
+    cout << " " << (w/n);
   }
   cout << ")" << endl;
 }

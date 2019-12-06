@@ -99,6 +99,10 @@ void load_boards(istream& lines, const char* filename, Boards& boards) {
       in.unknown("command");
     }
   }
+  // last board
+  if (board.turn > 0) {
+    boards.push_back(board);
+  }
 }
 
 bool load_boards(char const* file, Boards& boards) {

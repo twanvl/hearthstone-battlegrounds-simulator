@@ -5,9 +5,8 @@ Turn 1
 Health 38
 Level 1
 Board
-* Vulgar Homunculus
-==========
-Turn 6
+===================================
+Turn 1
 Health 40
 Level 4
 * Goldrinn, the Great Wolf
@@ -16,19 +15,7 @@ Level 4
 * Scavenging Hyena
 * Golden Old Murk Eye
 ===================================
-Turn 9
-Health 28
-Level 5
-Board
-* 14/13 Nightmare Amalgam
-* 8/10 Nathrezim Overseer
-* 8/10 Imp Gang Boss
-* 9/8 Nightmare Amalgam
-* 11/9 Mal'Ganis
-* 11/9 Mal'Ganis
-* 3/2 Annoy-o-Tron
-===================================
-Turn 7
+Turn 1
 Health 26
 Level 4
 Board
@@ -39,19 +26,17 @@ Board
 * 3/2 Annoy-o-Tron
 * 6/6 Vulgar Homunculus
 ===================================
-Turn 15
-Health 2
+Turn 1
+Health 28
 Level 5
 Board
-* 12/13 Foe Reaper 4000, taunt, divine shield
-* Lightfang Enforcer
-* 14/5 Cobalt Guardian, divine shield
-* 14/5 Cobalt Guardian, divine shield
-* 12/14 golden Security Rover
-* 8/10 golden Junkbot
-* 20/15 Nightmare Amalgam, taunt, divine shield, microbots, poisonous
+* 14/13 Nightmare Amalgam
+* 8/10 Imp Gang Boss
+* 11/9 Mal'Ganis
+* 11/9 Mal'Ganis
+* 3/2 Annoy-o-Tron
 ===================================
-Turn 11 enemy Bartendotron
+Turn 1
 Level 5
 Health 6
 Board
@@ -63,7 +48,7 @@ Board
 * 3/6 Kangor's Apprentice
 * 1/5 Junkbot
 ===================================
-Turn 15
+Turn 1
 Health 2
 Level 5
 Board
@@ -73,3 +58,14 @@ Board
 * 4/6 Security Rover, taunt, microbots
 * 1/5 Junkbot
 * Ironhide Direhorn
+===================================
+Turn 1
+Health 2
+Level 5
+Board
+* 10/11 Foe Reaper 4000, taunt, divine shield
+* Lightfang Enforcer
+* 12/3 Cobalt Guardian, divine shield
+* 10/12 golden Security Rover
+* 8/10 golden Junkbot
+* 5/5 Nightmare Amalgam, taunt, divine shield, microbots, poisonous

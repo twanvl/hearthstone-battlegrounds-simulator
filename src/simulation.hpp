@@ -78,7 +78,7 @@ struct ScoreSummary {
   }
 };
 
-inline int simulate_single(Board const& player0, Board const& player1, ScoreSummary& stats, RNG& rng) {
+inline int simulate_single(Board const& player0, Board const& player1, ScoreSummary& stats, BattleRNG& rng) {
   Battle battle(player0, player1, nullptr, rng);
   battle.run();
   stats.add_run(battle);
@@ -87,9 +87,14 @@ inline int simulate_single(Board const& player0, Board const& player1, ScoreSumm
 
 ScoreSummary simulate(Board const& player0, Board const& player1, int n = DEFAULT_NUM_RUNS, vector<int>* out = nullptr, RNG& rng = global_rng) {
   ScoreSummary stats;
+  #if LOW_VARIANCE_RNG
+    LowVarianceRNG the_rng(rng);
+  #else
+    RNG& the_rng = rng;
+  #endif
   if (out) out->reserve(out->size() + n);
   for (int i=0; i<n; ++i) {
-    int score = simulate_single(player0, player1, stats, rng);
+    int score = simulate_single(player0, player1, stats, the_rng);
     if (out) out->push_back(score);
   }
   if (out) std::sort(out->begin(), out->end());
@@ -104,12 +109,21 @@ ScoreSummary simulate_deterministic(Board const& player0, Board const& player1, 
 // Statistics
 // -----------------------------------------------------------------------------
 
-double mean(vector<int> const& xs) {
+template <typename T>
+double mean(vector<T> const& xs) {
   // work around emscripten bug (missing accumulate function)
   //return std::accumulate(xs.begin(), xs.end(), 0.) / xs.size();
   double sum = 0.;
-  for(int x : xs) sum += x;
-  return sum / xs.size();
+  for(auto x : xs) sum += x;
+  return sum / std::max(1, (int)xs.size());
+}
+
+template <typename T>
+double variance(vector<T> const& xs) {
+  double m = mean(xs);
+  double sum = 0.;
+  for(auto x : xs) sum += (x-m)*(x-m);
+  return sum / std::max(1, (int)xs.size()-1);
 }
 
 double mean_damage_taken(vector<int> const& xs, int enemy_level, int sign = 1) {

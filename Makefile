@@ -1,5 +1,5 @@
 GXX = g++
-GXX_FLAGS = -Wall -Wextra -Wno-unused-parameter -pedantic -std=c++11 -O2
+GXX_FLAGS = -Wall -Wextra -Wno-unused-parameter -pedantic -std=c++11 -O2 -flto
 EMCC = emcc
 EMCC_FLAGS = $(GXX_FLAGS) --bind -s FILESYSTEM=0
 

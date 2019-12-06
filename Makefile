@@ -63,6 +63,9 @@ tournament: $(LIB_SOURCES:.cpp=.o) src/tournament.o
 benchmark: $(LIB_SOURCES:.cpp=.o) src/benchmark.o
 	$(GXX) $(GXX_FLAGS) $^ -o $@
 
+benchmark-profile: $(LIB_SOURCES) src/benchmark.cpp
+	$(GXX) $(GXX_FLAGS) -g -pg $^ -o $@
+
 # Cleanup
 
 clean:

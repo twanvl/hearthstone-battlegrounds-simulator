@@ -274,6 +274,15 @@ void Battle::do_deathrattle(Minion const& dead_minion, int player, int pos) {
 // Summoning
 // -----------------------------------------------------------------------------
 
+bool is_aura_minion(MinionType t) {
+  return t == MinionType::DireWolfAlpha
+      || t == MinionType::MurlocWarleader
+      || t == MinionType::OldMurkEye
+      || t == MinionType::PhalanxCommander
+      || t == MinionType::Siegebreaker
+      || t == MinionType::MalGanis;
+}
+
 void Battle::summon(Minion const& m, int player, int pos) {
   summon_many(1, m, player, pos);
 }
@@ -285,6 +294,7 @@ void Battle::summon_many(int count, Minion const& m, int player, int pos) {
     board[player].insert(pos, m);
     on_summoned(board[player].minions[pos], player);
   }
+  if (is_aura_minion(m.type)) any_auras = true;
   recompute_auras();
 }
 
@@ -294,6 +304,7 @@ void Battle::summon_for_opponent(Minion const& m, int player) {
     int pos = board[1-player].append(m);
     on_summoned(board[1-player].minions[pos], player);
   }
+  if (is_aura_minion(m.type)) any_auras = true;
   recompute_auras();
 }
 
@@ -324,7 +335,12 @@ void Battle::do_hero_powers() {
 // Auras
 // -----------------------------------------------------------------------------
 
+// As an optimization, we track if there are any minions with auras on the board
+// if there are none, we can skip this step.
+
 void Battle::recompute_auras() {
+  if (!any_auras) return;
+  any_auras = false;
   for (int player=0; player<2; ++player) {
     recompute_auras(player);
   }

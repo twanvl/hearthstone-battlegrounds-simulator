@@ -20,6 +20,8 @@ struct Battle {
   RNG& summon_rng;
   // mechs that died for each player
   MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
+  // flags
+  bool any_auras = true;
   // logging
   int verbose = 0;
   ostream* log;

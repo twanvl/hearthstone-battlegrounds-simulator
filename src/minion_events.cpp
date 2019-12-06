@@ -9,9 +9,11 @@ void Battle::recompute_aura_from(Minion& m, int player, int pos) {
   switch (m.type) {
     case MinionType::DireWolfAlpha:
       board[player].aura_buff_adjacent(factor, 0, pos);
+      any_auras = true;
       break;
     case MinionType::MurlocWarleader:
       board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
+      any_auras = true;
       break;
     case MinionType::OldMurkEye: {
       // count murlocs for both players
@@ -22,17 +24,21 @@ void Battle::recompute_aura_from(Minion& m, int player, int pos) {
         });
       }
       m.aura_buff(factor*count,0);
+      any_auras = true;
       break;
     }
     case MinionType::PhalanxCommander:
       board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.taunt; });
+      any_auras = true;
       break;
     case MinionType::Siegebreaker:
       board[player].aura_buff_others_if(double_if_golden(1,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
+      any_auras = true;
       break;
     case MinionType::MalGanis:
       board[player].aura_buff_others_if(double_if_golden(2,m.golden), double_if_golden(2,m.golden), pos,
         [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
+      any_auras = true;
       break;
     default:; // nothing
   }

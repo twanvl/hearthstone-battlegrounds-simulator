@@ -136,6 +136,44 @@ int LowVarianceRNG::random(int n) {
 }
 
 // -----------------------------------------------------------------------------
+// Fast low variance RNG
+// -----------------------------------------------------------------------------
+
+int FastLowVarianceRNG::random(int n) {
+  if (n <= 1) return 0;
+  if (budget < n) {
+    // don't keep subdividing
+    return rng.random(n);
+  } else {
+    if (cur_entry < 0) {
+      // initialize new permutation entry
+      cur_entry = (int)entries.size();
+      if (prev_entry >= 0) entries[prev_entry].next = cur_entry;
+      entries.push_back({n,n}); // header
+      for (int i=0; i<n; ++i) {
+        entries.push_back({i,-1}); // entry
+      }
+    }
+    Header& cur = reinterpret_cast<Header&>(entries[cur_entry]);
+    if (cur.n != n) {
+      //std::cerr << "requesting different random number range than previous runs" << std::endl;
+      return rng.random(n);
+    }
+    if (cur.i >= cur.n) {
+      // reshuffle
+      rng.shuffle(&entries[cur_entry + 1], n);
+      cur.i = 0;
+    }
+    // take next item from permutation
+    int p = cur_entry + 1 + cur.i++;
+    prev_entry = p;
+    cur_entry = entries[p].next;
+    budget /= n; // decrease budget
+    return entries[p].value;
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Keyed rng
 // -----------------------------------------------------------------------------
 

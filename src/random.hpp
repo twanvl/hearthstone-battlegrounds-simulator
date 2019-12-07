@@ -36,6 +36,14 @@ public:
     return out;
   }
 
+  void start() {} // for compatability with low variance RNG
+
+  // for compatability with keyed RNG
+  template <typename Key>
+  inline int random(int n, Key key) {
+    return random(n);
+  }
+
   template <typename T>
   void shuffle(T* data, int n) {
     for (int i=1; i<n; ++i) {
@@ -92,6 +100,11 @@ public:
   }
 
   int random(int n);
+
+  template <typename Key>
+  inline int random(int n, Key key) {
+    return random(n);
+  }
 };
 
 class FastLowVarianceRNG {
@@ -133,6 +146,11 @@ public:
   }
 
   int random(int n);
+
+  template <typename Key>
+  inline int random(int n, Key key) {
+    return random(n);
+  }
 };
 
 
@@ -142,6 +160,9 @@ public:
 
 // Random number generator that uses permutations to reduce variance (as above)
 // but to detect 'the same' call to .random(), we use a caller provided key
+//
+// So for each (key,n) we keep a sperate permutation.
+// 
 template <typename Key>
 class KeyedRNG {
 private:
@@ -157,7 +178,7 @@ private:
     std::vector<int> perm; // permutation of [0..n-1]
   };
   struct KeyEntry {
-    size_t i = 0; // number of times this key has been used in this run
+    size_t times_used = 0; // number of times this key has been used in this run
     std::vector<Entry> entries;
   };
   struct HeaderHash {
@@ -169,9 +190,6 @@ public:
   KeyedRNG(RNG& rng) : rng(rng) {}
   void start();
   int random(int n, Key key);
-  inline int random(int n) {
-    return random(n,Key());
-  }
 };
 
 template <class T>
@@ -181,22 +199,32 @@ inline void hash_combine(std::size_t& seed, const T& v) {
 }
 
 // -----------------------------------------------------------------------------
+// global RNG
+// -----------------------------------------------------------------------------
+
+extern RNG global_rng;
+
+// -----------------------------------------------------------------------------
+// RNG keys
+// -----------------------------------------------------------------------------
+
+struct RNGKey{ int key; };
+
+// -----------------------------------------------------------------------------
 // The RNG to use in battles
 // -----------------------------------------------------------------------------
 
-#define LOW_VARIANCE_RNG 1
-#define KEYED_RNG 0
-
-extern RNG global_rng;
+#define LOW_VARIANCE_RNG 0
+#define KEYED_RNG 1
 
 #if LOW_VARIANCE_RNG
   using BattleRNG = FastLowVarianceRNG;
   extern BattleRNG global_battle_rng;
 #elif KEYED_RNG
-  using BattleRNG = KeyedRNG<int>;
+  using BattleRNG = KeyedRNG<RNGKey>;
   extern BattleRNG global_battle_rng;
 #else
-  using BattleRNG = RNG;
+  using BattleRNG = RNG&;
   #define global_battle_rng global_rng
 #endif
 

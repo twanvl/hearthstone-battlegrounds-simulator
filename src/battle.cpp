@@ -35,7 +35,7 @@ void Battle::start() {
   } else if (n0 < n1) {
     turn = 1;
   } else {
-    turn = target_rng.random(2);
+    turn = rng.random(2, rng_key(RNGType::FirstPlayer));
   }
   board[0].next_attacker = 0;
   board[1].next_attacker = 0;
@@ -86,8 +86,8 @@ void Battle::single_attack_by(int player, int from) {
   Board& enemy = board[1-player];
   if (enemy.empty()) return;
   int target = attacker.type == MinionType::ZappSlywick
-                 ? enemy.lowest_attack_target(target_rng)
-                 : enemy.random_attack_target(target_rng);
+                 ? enemy.lowest_attack_target(rng, rng_key(RNGType::Attack,player,attacker))
+                 : enemy.random_attack_target(rng, rng_key(RNGType::Attack,player,attacker));
   if (verbose && log) {
     *log << "attack by " << player << "." << from << ", " << attacker << (cleave ? "[C]" : "") << " to " << target << endl;
   }
@@ -163,7 +163,7 @@ bool Battle::damage(Minion const& attacker, int player, int pos) {
 }
 
 void Battle::damage_random_minion(int player, int amount) {
-  int i = board[player].random_living_minion(target_rng);
+  int i = board[player].random_living_minion(rng, rng_key(RNGType::Damage,player,amount));
   if (i != -1) {
     damage(player, i, amount);
   }

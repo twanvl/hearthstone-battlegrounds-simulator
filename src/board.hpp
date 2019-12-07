@@ -2,6 +2,7 @@
 #include "minion.hpp"
 #include "enums.hpp"
 #include "random.hpp"
+#include "random_keys.hpp"
 #include <iostream>
 #include <cstdlib>
 #include <limits>
@@ -199,14 +200,14 @@ struct Board : MinionArray<BOARDSIZE> {
   // Targeting
   
   // target to attack
-  int random_attack_target(BattleRNG& rng) const {
+  int random_attack_target(BattleRNG& rng, RNGKey key) const {
     int num_taunts = 0, num_minions = 0;
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (minions[i].taunt) num_taunts++;
       num_minions++;
     }
     if (num_taunts > 0) {
-      int pick = rng.random(num_taunts);
+      int pick = rng.random(num_taunts, key);
       for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
         if (minions[i].taunt) {
           if (pick-- == 0) return i;
@@ -216,12 +217,12 @@ struct Board : MinionArray<BOARDSIZE> {
     } else if (num_minions == 0) {
       return -1;
     } else {
-      return rng.random(num_minions);
+      return rng.random(num_minions, key);
     }
   }
 
   // minion with the lowest attack
-  int lowest_attack_target(BattleRNG& rng) const {
+  int lowest_attack_target(BattleRNG& rng, RNGKey key) const {
     int num_lowest = 0, lowest_attack = std::numeric_limits<int>::max();
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (minions[i].attack < lowest_attack) {
@@ -231,7 +232,7 @@ struct Board : MinionArray<BOARDSIZE> {
         num_lowest++;
       }
     }
-    int pick = rng.random(num_lowest);
+    int pick = rng.random(num_lowest, key);
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (minions[i].attack == lowest_attack) {
         if (pick-- == 0) return i;
@@ -240,7 +241,7 @@ struct Board : MinionArray<BOARDSIZE> {
     return -1;
   }
 
-  int random_living_minion(BattleRNG& rng) const {
+  int random_living_minion(BattleRNG& rng, RNGKey key) const {
     int num_alive = 0;
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (!minions[i].dead()) {
@@ -248,7 +249,7 @@ struct Board : MinionArray<BOARDSIZE> {
       }
     }
     if (num_alive == 0) return -1;
-    int pick = rng.random(num_alive);
+    int pick = rng.random(num_alive, key);
     for (int i=0; i<BOARDSIZE && minions[i].exists(); ++i) {
       if (!minions[i].dead()) {
         if (pick-- == 0) return i;
@@ -274,15 +275,15 @@ struct Board : MinionArray<BOARDSIZE> {
   // Specific buffs
 
   template <typename F>
-  void for_random_living_minion(F fun, BattleRNG& rng) {
-    int i = random_living_minion(rng);
+  void for_random_living_minion(F fun, BattleRNG& rng, RNGKey key) {
+    int i = random_living_minion(rng,key);
     if (i != -1) fun(minions[i]);
   }
-  void give_random_minion_divine_shield(BattleRNG& rng) {
-    for_random_living_minion([](Minion& m) { m.divine_shield = true; }, rng);
+  void give_random_minion_divine_shield(BattleRNG& rng, int player) {
+    for_random_living_minion([](Minion& m) { m.divine_shield = true; }, rng, rng_key(RNGType::GiveDivineShield,player));
   }
-  void buff_random_minion(int attack, int health, BattleRNG& rng) {
-    for_random_living_minion([=](Minion& m) { m.buff(attack, health); }, rng);
+  void buff_random_minion(int attack, int health, BattleRNG& rng, int player) {
+    for_random_living_minion([=](Minion& m) { m.buff(attack, health); }, rng, rng_key(RNGType::Buff,player,attack+(health<<8)));
   }
 
   // Duplication effects

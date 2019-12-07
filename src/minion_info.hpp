@@ -66,11 +66,19 @@ inline int stars(MinionType type) { return info(type).stars; }
 
 // random minion spawning
 
+#if KEYED_RNG
+MinionType random_one_cost_minion(BattleRNG& rng, int player);
+MinionType random_two_cost_minion(BattleRNG& rng, int player);
+MinionType random_four_cost_minion(BattleRNG& rng, int player);
+MinionType random_deathrattle_minion(BattleRNG& rng, int player);
+MinionType random_legendary_minion(BattleRNG& rng, int player);
+#else
 MinionType random_one_cost_minion(BattleRNG& rng);
 MinionType random_two_cost_minion(BattleRNG& rng);
 MinionType random_four_cost_minion(BattleRNG& rng);
 MinionType random_deathrattle_minion(BattleRNG& rng);
 MinionType random_legendary_minion(BattleRNG& rng);
+#endif
 
 // -----------------------------------------------------------------------------
 // Hero power info
@@ -97,16 +105,3 @@ inline ostream& operator << (ostream& s, HeroType x) {
   return s << name(x);
 }
 
-// -----------------------------------------------------------------------------
-// Utilities
-// -----------------------------------------------------------------------------
-
-// utilities for random minions
-
-template <typename A, int N>
-constexpr int array_size(A(&)[N]) { return N; }
-
-template <typename A, int N>
-A random_element(A(& list)[N], BattleRNG& rng) {
-  return list[rng.random(array_size(list))];
-}

@@ -1,4 +1,5 @@
 #include "random.hpp"
+#include "random_keys.hpp"
 
 // -----------------------------------------------------------------------------
 // Random number generator: xoroshiro128+
@@ -177,6 +178,17 @@ int FastLowVarianceRNG::random(int n) {
 // Keyed rng
 // -----------------------------------------------------------------------------
 
+inline bool operator == (RNGKey a, RNGKey b) {
+  return a.key == b.key;
+}
+namespace std {
+  template <> struct hash<RNGKey> {
+    inline size_t operator() (RNGKey k) const noexcept {
+      return hash<int>()(k.key);
+    }
+  };
+}
+
 template <typename Key>
 size_t KeyedRNG<Key>::HeaderHash::operator()(KeyedRNG<Key>::Header const& x) const noexcept {
   size_t seed = 0;
@@ -188,7 +200,7 @@ size_t KeyedRNG<Key>::HeaderHash::operator()(KeyedRNG<Key>::Header const& x) con
 template <typename Key>
 void KeyedRNG<Key>::start() {
   for (auto& entry : table) {
-    entry.second.i = 0;
+    entry.second.times_used = 0;
   }
 }
 
@@ -196,7 +208,7 @@ template <typename Key>
 int KeyedRNG<Key>::random(int n, Key key) {
   if (n <= 1) return 0;
   KeyEntry& ke = table[{key,n}];
-  size_t times_used = ke.i++;
+  size_t times_used = ke.times_used++;
   if (times_used >= ke.entries.size()) {
     Entry new_entry;
     new_entry.perm.reserve(n);
@@ -205,6 +217,9 @@ int KeyedRNG<Key>::random(int n, Key key) {
     }
     new_entry.i = n;
     ke.entries.emplace_back(std::move(new_entry));
+    if (times_used > 30) {
+      exit(1);
+    }
   }
   Entry& e = ke.entries[times_used];
   if (e.i >= n) {
@@ -214,7 +229,7 @@ int KeyedRNG<Key>::random(int n, Key key) {
   return e.perm[e.i++];
 }
 
-template class KeyedRNG<int>;
+template class KeyedRNG<RNGKey>;
 
 // -----------------------------------------------------------------------------
 // Global rng

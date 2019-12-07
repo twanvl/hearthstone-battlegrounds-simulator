@@ -16,8 +16,7 @@ struct Battle {
   int turn = -1; // player to attack next
   Board board[2];
   // randomness
-  BattleRNG& target_rng;
-  BattleRNG& summon_rng;
+  BattleRNG& rng;
   // mechs that died for each player
   MinionArray<MAX_MECHS_THAT_DIED> mechs_that_died[2];
   // flags
@@ -28,7 +27,7 @@ struct Battle {
 
   Battle(Board const& b0, Board const& b1, ostream* log = nullptr, BattleRNG& rng = global_battle_rng)
     : board{b0,b1}
-    , target_rng(rng), summon_rng(rng)
+    , rng(rng)
     , log(log)
   {
     recompute_auras();

@@ -11,7 +11,7 @@ using namespace std;
 void rng_variance_test(Boards const& boards) {
   using namespace std::chrono;
   int runs = 1000;
-  int reps = 10;
+  int reps = 100;
   int n = (int)boards.size();
   auto start = high_resolution_clock::now();
   for (int i=0; i<n; ++i) {
@@ -26,7 +26,8 @@ void rng_variance_test(Boards const& boards) {
       }
       double m = mean(winrates);
       double v = variance(winrates);
-      cout << " m:" << setprecision(5) << m << " v:" << v << endl;
+      double ev = m * (1-m) / runs;
+      cout << " m:" << setprecision(5) << m << " v:" << v << "     Ev:" << ev << " actual is " << (v/ev) << endl;
     }
   }
   auto end = high_resolution_clock::now();

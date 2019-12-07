@@ -124,7 +124,7 @@ int LowVarianceRNG::random(int n) {
     }
     if (cur->i >= cur->children.size()) {
       // reshuffle children
-      rng.shuffle(&*cur->children.begin(), n);
+      rng.shuffle(cur->children);
       cur->i = 0;
     }
     // take next item from permutation
@@ -135,6 +135,48 @@ int LowVarianceRNG::random(int n) {
   }
 }
 
+// -----------------------------------------------------------------------------
+// Keyed rng
+// -----------------------------------------------------------------------------
+
+template <typename Key>
+size_t KeyedRNG<Key>::HeaderHash::operator()(KeyedRNG<Key>::Header const& x) const noexcept {
+  size_t seed = 0;
+  hash_combine(seed, x.key);
+  hash_combine(seed, x.n);
+  return seed;
+}
+
+template <typename Key>
+void KeyedRNG<Key>::start() {
+  for (auto& entry : table) {
+    entry.second.i = 0;
+  }
+}
+
+template <typename Key>
+int KeyedRNG<Key>::random(int n, Key key) {
+  if (n <= 1) return 0;
+  KeyEntry& ke = table[{key,n}];
+  size_t times_used = ke.i++;
+  if (times_used >= ke.entries.size()) {
+    Entry new_entry;
+    new_entry.perm.reserve(n);
+    for (int i=0; i<n; ++i) {
+      new_entry.perm.push_back(i);
+    }
+    new_entry.i = n;
+    ke.entries.emplace_back(std::move(new_entry));
+  }
+  Entry& e = ke.entries[times_used];
+  if (e.i >= n) {
+    rng.shuffle(e.perm);
+    e.i = 0;
+  }
+  return e.perm[e.i++];
+}
+
+template class KeyedRNG<int>;
 
 // -----------------------------------------------------------------------------
 // Global rng
@@ -143,5 +185,7 @@ int LowVarianceRNG::random(int n) {
 RNG global_rng;
 
 #if LOW_VARIANCE_RNG
-LowVarianceRNG global_battle_rng(global_rng,0);
+BattleRNG global_battle_rng(global_rng,0);
+#elif KEYED_RNG
+BattleRNG global_battle_rng(global_rng);
 #endif

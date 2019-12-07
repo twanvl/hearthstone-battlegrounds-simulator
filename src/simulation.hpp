@@ -87,13 +87,16 @@ inline int simulate_single(Board const& player0, Board const& player1, ScoreSumm
 
 ScoreSummary simulate(Board const& player0, Board const& player1, int n = DEFAULT_NUM_RUNS, vector<int>* out = nullptr, RNG& rng = global_rng) {
   ScoreSummary stats;
-  #if LOW_VARIANCE_RNG
-    LowVarianceRNG the_rng(rng);
+  #if LOW_VARIANCE_RNG || KEYED_RNG
+    BattleRNG the_rng(rng);
   #else
     RNG& the_rng = rng;
   #endif
   if (out) out->reserve(out->size() + n);
   for (int i=0; i<n; ++i) {
+    #if LOW_VARIANCE_RNG
+      the_rng.start();
+    #endif
     int score = simulate_single(player0, player1, stats, the_rng);
     if (out) out->push_back(score);
   }

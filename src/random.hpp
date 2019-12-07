@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 #include <memory>
 
 // -----------------------------------------------------------------------------
@@ -41,6 +42,10 @@ public:
       int j = random(i+1);
       if (i != j) std::swap(data[i], data[j]);
     }
+  }
+  template <typename T>
+  void shuffle(std::vector<T>& data) {
+    shuffle(data.data(), static_cast<int>(data.size()));
   }
 };
 
@@ -89,16 +94,64 @@ public:
   int random(int n);
 };
 
+// -----------------------------------------------------------------------------
+// Keyed rng
+// -----------------------------------------------------------------------------
+
+// Random number generator that uses permutations to reduce variance (as above)
+// but to detect 'the same' call to .random(), we use a caller provided key
+template <typename Key>
+class KeyedRNG {
+private:
+  struct Header {
+    Key key;
+    int n;
+    inline bool operator == (Header const& that) const noexcept {
+      return key == that.key && n == that.n;
+    }
+  };
+  struct Entry {
+    int i; // number of items from the permutation used
+    std::vector<int> perm; // permutation of [0..n-1]
+  };
+  struct KeyEntry {
+    size_t i = 0; // number of times this key has been used in this run
+    std::vector<Entry> entries;
+  };
+  struct HeaderHash {
+    inline size_t operator()(Header const&) const noexcept;
+  };
+  std::unordered_map<Header,KeyEntry,HeaderHash> table;
+  RNG& rng;
+public:
+  KeyedRNG(RNG& rng) : rng(rng) {}
+  void start();
+  int random(int n, Key key);
+  inline int random(int n) {
+    return random(n,Key());
+  }
+};
+
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
 
 // -----------------------------------------------------------------------------
 // The RNG to use in battles
 // -----------------------------------------------------------------------------
 
 #define LOW_VARIANCE_RNG 0
+#define KEYED_RNG 0
+
 extern RNG global_rng;
 
 #if LOW_VARIANCE_RNG
   using BattleRNG = LowVarianceRNG;
+  extern BattleRNG global_battle_rng;
+#elif KEYED_RNG
+  using BattleRNG = KeyedRNG<int>;
   extern BattleRNG global_battle_rng;
 #else
   using BattleRNG = RNG;

@@ -69,3 +69,10 @@ Board
 * 10/12 golden Security Rover
 * 8/10 golden Junkbot
 * 5/5 Nightmare Amalgam, taunt, divine shield, microbots, poisonous
+===================================
+Turn 1
+Board
+* Piloted Shredder
+* Piloted Sky Golem
+* Sneed's Old Shredder
+* Ghastcoiler

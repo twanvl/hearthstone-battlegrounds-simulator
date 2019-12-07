@@ -2,6 +2,7 @@
 #include "simulation.hpp"
 #include <iomanip>
 #include <chrono>
+#include <cmath>
 using namespace std;
 
 // -----------------------------------------------------------------------------
@@ -27,7 +28,7 @@ void rng_variance_test(Boards const& boards) {
       double m = mean(winrates);
       double v = variance(winrates);
       double ev = m * (1-m) / runs;
-      cout << " m:" << setprecision(5) << m << " v:" << v << "     Ev:" << ev << " actual is " << (v/ev) << endl;
+      cout << " m:" << setprecision(5) << m << " s:" << sqrt(v) << "     Es:" << sqrt(ev) << " actual is " << (v/ev) << endl;
     }
   }
   auto end = high_resolution_clock::now();

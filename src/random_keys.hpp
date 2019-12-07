@@ -24,7 +24,7 @@ inline RNGKey rng_key(RNGType type, int player, int amount) {
   return {(int)type ^ (player<<8) ^ (amount<<9)};
 }
 inline RNGKey rng_key(RNGType type, int player, Minion const& attacker) {
-  return {(int)type ^ (player<<8) ^ ((int)attacker.type<<9) ^ ((int)attacker.golden<<9)};
+  return {(int)type ^ (player<<8) ^ ((int)attacker.type<<9) ^ ((int)attacker.golden<<15) ^ ((int)attacker.attack<<16)};
 }
 
 // -----------------------------------------------------------------------------

@@ -117,6 +117,11 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       board[player].buff_all_if(amount, amount, [](Minion const& x){return x.has_tribe(Tribe::Beast);});
       break;
     }
+    case MinionType::KingBagurgle: {
+      int amount = double_if_golden(2,m.golden);
+      board[player].buff_all_if(amount, amount, [](Minion const& x){return x.has_tribe(Tribe::Murloc);});
+      break;
+    }
     case MinionType::MechanoEgg:
       summon(Minion(MinionType::Robosaur,m.golden), player, pos);
       break;

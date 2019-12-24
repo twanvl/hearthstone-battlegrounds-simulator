@@ -269,12 +269,14 @@ def write_enum_data_cpp(minions, heroes):
     f.write("const MinionInfo minion_info[] = {\n")
     for m in minions:
       e = m[0]
-      f.write("  {{{}, {{{},{}}}, {}, Tribe::{}, {},{}, {},{},{},{},{}}},\n".format(
+      f.write("  {{{}, {{{},{}}}, {}, Tribe::{}, {},{}, {},{},{},{},{}, {},{}}},\n".format(
         cstr(e.name), cstr(e.id), cstr(m[1].id if m[1] is not None else None),
         e.tier, e.tribe,
         e.get_int("ATK"), e.get_int("HEALTH"),
         cbool(e.get_bool("TAUNT")), cbool(e.get_bool("DIVINE_SHIELD")), cbool(e.get_bool("POISONOUS")), cbool(e.get_bool("WINDFURY")),
-        cbool(e.cleave)
+        cbool(e.cleave),
+        cbool(e.get_bool("BATTLECRY")),
+        cbool(e.get_bool("IS_BACON_POOL_MINION"))
       ))
     f.write("};\n\n")
 

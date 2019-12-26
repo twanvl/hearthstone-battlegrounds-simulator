@@ -83,6 +83,8 @@ public:
   bool dead() const { return health <= 0; }
   bool alive() const { return exists() && !dead(); }
 
+  int double_if_golden(int x) const { return ::double_if_golden(x, golden); }
+
   void clear() {
     this->type = MinionType::None;
   }

@@ -5,14 +5,13 @@
 // -----------------------------------------------------------------------------
 
 void Battle::recompute_aura_from(Minion& m, int player, int pos) {
-  int factor = m.golden ? 2 : 1;
   switch (m.type) {
     case MinionType::DireWolfAlpha:
-      board[player].aura_buff_adjacent(factor, 0, pos);
+      board[player].aura_buff_adjacent(m.double_if_golden(1), 0, pos);
       any_auras = true;
       break;
     case MinionType::MurlocWarleader:
-      board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
+      board[player].aura_buff_others_if(m.double_if_golden(2), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
       any_auras = true;
       break;
     case MinionType::OldMurkEye: {
@@ -23,20 +22,20 @@ void Battle::recompute_aura_from(Minion& m, int player, int pos) {
           if (to.has_tribe(Tribe::Murloc)) count++;
         });
       }
-      m.aura_buff(factor*count,0);
+      m.aura_buff(m.double_if_golden(count),0);
       any_auras = true;
       break;
     }
     case MinionType::PhalanxCommander:
-      board[player].aura_buff_others_if(double_if_golden(2,m.golden), 0, pos, [](Minion const& to){ return to.taunt; });
+      board[player].aura_buff_others_if(m.double_if_golden(2), 0, pos, [](Minion const& to){ return to.taunt; });
       any_auras = true;
       break;
     case MinionType::Siegebreaker:
-      board[player].aura_buff_others_if(double_if_golden(1,m.golden), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
+      board[player].aura_buff_others_if(m.double_if_golden(1), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
       any_auras = true;
       break;
     case MinionType::MalGanis:
-      board[player].aura_buff_others_if(double_if_golden(2,m.golden), double_if_golden(2,m.golden), pos,
+      board[player].aura_buff_others_if(m.double_if_golden(2), m.double_if_golden(2), pos,
         [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
       any_auras = true;
       break;
@@ -83,7 +82,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       summon_many(m.attack, Minion(MinionType::Rat,m.golden), player, pos);
       break;
     case MinionType::SpawnOfNZoth:
-      board[player].buff_all(double_if_golden(1,m.golden), double_if_golden(1,m.golden));
+      board[player].buff_all(m.double_if_golden(1), m.double_if_golden(1));
       break;
     // Tier 3
     case MinionType::InfestedWolf:
@@ -98,7 +97,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       summon_many(3, Minion(MinionType::Microbot,m.golden), player, pos);
       break;
     case MinionType::TortollanShellraiser: {
-      int amount = double_if_golden(1,m.golden);
+      int amount = m.double_if_golden(1);
       board[player].buff_random_minion(amount,amount,rng,player);
       break;
     }
@@ -113,12 +112,12 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     // Tier 5
     case MinionType::GoldrinnTheGreatWolf: {
-      int amount = double_if_golden(4,m.golden);
+      int amount = m.double_if_golden(4);
       board[player].buff_all_if(amount, amount, [](Minion const& x){return x.has_tribe(Tribe::Beast);});
       break;
     }
     case MinionType::KingBagurgle: {
-      int amount = double_if_golden(2,m.golden);
+      int amount = m.double_if_golden(2);
       board[player].buff_all_if(amount, amount, [](Minion const& x){return x.has_tribe(Tribe::Murloc);});
       break;
     }
@@ -133,12 +132,12 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       break;
     // Tier 6
     case MinionType::Ghastcoiler:
-      for (int i=0; i<double_if_golden(2,m.golden); ++i) {
+      for (int i=0; i<m.double_if_golden(2); ++i) {
         summon(random_deathrattle_minion(rng, player), player, pos);
       }
       break;
     case MinionType::KangorsApprentice:
-      for (int i=0; i<double_if_golden(2,m.golden) && mechs_that_died[player][i].exists(); ++i) {
+      for (int i=0; i<m.double_if_golden(2) && mechs_that_died[player][i].exists(); ++i) {
         summon(mechs_that_died[player][i].new_copy(), player, pos);
       }
       break;
@@ -159,7 +158,7 @@ void Battle::on_friendly_summon(Minion& m, Minion& summoned, int player) {
   switch (m.type) {
     case MinionType::MurlocTidecaller:
       if (summoned.has_tribe(Tribe::Murloc)) {
-        m.buff(double_if_golden(1,m.golden), 0);
+        m.buff(m.double_if_golden(1), 0);
       }
       break;
     case MinionType::CobaltGuardian:
@@ -169,17 +168,17 @@ void Battle::on_friendly_summon(Minion& m, Minion& summoned, int player) {
       break;
     case MinionType::PackLeader:
       if (summoned.has_tribe(Tribe::Beast)) {
-        summoned.buff(double_if_golden(3,m.golden), 0);
+        summoned.buff(m.double_if_golden(3), 0);
       }
       break;
     case MinionType::MamaBear:
       if (summoned.has_tribe(Tribe::Beast)) {
-        summoned.buff(double_if_golden(4,m.golden), double_if_golden(4,m.golden));
+        summoned.buff(m.double_if_golden(4), m.double_if_golden(4));
       }
       break;
     case MinionType::PreNerfMamaBear:
       if (summoned.has_tribe(Tribe::Beast)) {
-        summoned.buff(double_if_golden(5,m.golden), double_if_golden(5,m.golden));
+        summoned.buff(m.double_if_golden(5), m.double_if_golden(5));
       }
       break;
     default:;
@@ -190,18 +189,18 @@ void Battle::on_friendly_death(Minion& m, Minion const& dead_minion, int player)
   switch (m.type) {
     case MinionType::ScavengingHyena:
       if (dead_minion.has_tribe(Tribe::Beast)) {
-        m.buff(double_if_golden(2,m.golden), double_if_golden(1,m.golden));
+        m.buff(m.double_if_golden(2), m.double_if_golden(1));
       }
       break;
     case MinionType::SoulJuggler:
       if (dead_minion.has_tribe(Tribe::Demon)) {
-        damage_random_minion(1-player, double_if_golden(3,m.golden));
+        damage_random_minion(1-player, m.double_if_golden(3));
         // already in a loop that does check_for_deaths();
       }
       break;
     case MinionType::Junkbot:
       if (dead_minion.has_tribe(Tribe::Mech)) {
-        m.buff(double_if_golden(2,m.golden), double_if_golden(2,m.golden));
+        m.buff(m.double_if_golden(2), m.double_if_golden(2));
       }
       break;
     default:;
@@ -229,7 +228,7 @@ void Battle::on_attack_and_kill(Minion& m, int player, int pos, bool overkill) {
       }
       break;
     case MinionType::TheBoogeymonster:
-      m.buff(double_if_golden(2,m.golden),double_if_golden(2,m.golden));
+      m.buff(m.double_if_golden(2),m.double_if_golden(2));
       break;
     default:;
   }
@@ -238,7 +237,7 @@ void Battle::on_attack_and_kill(Minion& m, int player, int pos, bool overkill) {
 void Battle::on_after_friendly_attack(Minion& m, Minion const& attacker) {
   switch (m.type) {
     case MinionType::FesterootHulk:
-      m.buff(double_if_golden(1,m.golden),0);
+      m.buff(m.double_if_golden(1),0);
       break;
     default:;
   }
@@ -247,7 +246,7 @@ void Battle::on_after_friendly_attack(Minion& m, Minion const& attacker) {
 void Battle::on_break_friendly_divine_shield(Minion& m, int player) {
   switch (m.type) {
     case MinionType::BolvarFireblood:
-      m.buff(double_if_golden(2,m.golden),0);
+      m.buff(m.double_if_golden(2),0);
       break;
     default:;
   }

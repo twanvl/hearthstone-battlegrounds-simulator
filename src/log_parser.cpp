@@ -211,6 +211,9 @@ PreBattleState to_board_state(HSGame& game) {
       }
     }
   }
+  for (int player=0; player<2; ++player) {
+    out.players[player].recompute_auras(&out.players[1-player]);
+  }
   return out;
 }
 

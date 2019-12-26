@@ -91,6 +91,7 @@ void load_boards(istream& lines, const char* filename, Boards& boards) {
       continue;
     } else if (in.peek() == '=') {
       if (board.turn > 0) {
+        board.board.recompute_auras();
         boards.push_back(board);
       }
       board = BoardWithLabel();
@@ -101,6 +102,7 @@ void load_boards(istream& lines, const char* filename, Boards& boards) {
   }
   // last board
   if (board.turn > 0) {
+    board.board.recompute_auras();
     boards.push_back(board);
   }
 }

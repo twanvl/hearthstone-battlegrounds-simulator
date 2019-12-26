@@ -311,7 +311,7 @@ void REPL::do_quit() {
 }
 
 void REPL::do_end_input() {
-  if (!used && !players[0].empty()) {
+  if (!used && !players[0].minions.empty()) {
     do_run();
   }
   actual_outcomes.clear();
@@ -410,7 +410,7 @@ void REPL::do_optimize_order(Objective objective, int n) {
     display_objective_value(out, objective, opt.best_score);
     out << " by reordering your minions:" << endl;
     Board new_board = players[0];
-    permute_minions(new_board, players[0].minions, opt.best_order.data(), opt.n);
+    permute_minions(new_board, &players[0].minions[0], opt.best_order.data(), opt.n);
     out << new_board;
     // TODO: significance test?
   }
@@ -424,7 +424,7 @@ void REPL::do_optimize_buff_placement(Minion const& buff, Objective objective, i
   out << "Current " << name(objective) << " is ";
   display_objective_value(out, objective, opt.current_score);
   out << endl;
-  players[0].for_each_with_pos([&](int i, Minion const& m) {
+  players[0].minions.for_each_with_pos([&](int i, Minion const& m) {
     out << "Buffing " << m << "; " << name(objective) << " becomes ";
     display_objective_value(out, objective, opt.scores[i]);
     if (opt.scores[i] >= opt.best_score) {

@@ -439,26 +439,26 @@ struct MinionRef {
   void for_each(Board& b, Fun fun) const {
     switch (type) {
       case Type::Position:
-        if (pos >= 0 && pos < BOARDSIZE && b.minions[pos].exists()) {
+        if (b.minions.contains(pos)) {
           fun(b.minions[pos]);
         }
         return;
       case Type::Last: {
-        int n = b.size();
+        int n = b.minions.size();
         if (n > 0) {
           fun(b.minions[n-1]);
         }
         return;
       }
       case Type::Tribe:
-        b.for_each([&](Minion& m) {
+        b.minions.for_each([&](Minion& m) {
           if (tribe == Tribe::All || m.has_tribe(tribe)) {
             fun(m);
           }
         });
         return;
       case Type::MinionType:
-        b.for_each([&](Minion& m) {
+        b.minions.for_each([&](Minion& m) {
           if (m.type == minion_type) {
             fun(m);
           }

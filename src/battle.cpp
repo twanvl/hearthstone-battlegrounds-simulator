@@ -29,7 +29,7 @@ void Battle::run() {
 void Battle::start() {
   if (turn >= 0) return;
   // player with most minions attacks first
-  int n0 = board[0].size(), n1 = board[1].size();
+  int n0 = board[0].minions.size(), n1 = board[1].minions.size();
   if (n0 > n1) {
     turn = 0;
   } else if (n0 < n1) {
@@ -45,10 +45,10 @@ void Battle::start() {
 int find_attacker(Board const& board) {
   int from = board.next_attacker;
   for (int tries=0; tries<BOARDSIZE; ++tries) {
-    if (from >= BOARDSIZE || !board.minions[from].exists()) {
+    if (from >= BOARDSIZE || !board.minions.contains(from)) {
       from = 0;
     }
-    if (board.minions[from].exists() && board.minions[from].attack > 0) {
+    if (board.minions.contains(from) && board.minions[from].attack > 0) {
       return from;
     }
   }
@@ -84,7 +84,7 @@ void Battle::single_attack_by(int player, int from) {
   bool cleave = attacker.cleave();
   // find a target
   Board& enemy = board[1-player];
-  if (enemy.empty()) return;
+  if (enemy.minions.empty()) return;
   int target = attacker.type == MinionType::ZappSlywick
                  ? enemy.lowest_attack_target(rng, rng_key(RNGType::Attack,player,attacker))
                  : enemy.random_attack_target(rng, rng_key(RNGType::Attack,player,attacker));
@@ -103,7 +103,7 @@ void Battle::single_attack_by(int player, int from) {
   int kill = 0, overkill = 0;
   for (int i=0; i < (cleave ? 3 : 1) ; ++i) {
     int pos = enemy.track_pos[i];
-    if (pos >= 0 && pos < BOARDSIZE && enemy.minions[pos].exists()) {
+    if (enemy.minions.contains(pos)) {
       damage(attacker, 1-player, pos);
       pos = enemy.track_pos[i];
       if (enemy.minions[pos].dead()) {
@@ -125,7 +125,7 @@ void Battle::single_attack_by(int player, int from) {
 }
 
 void Battle::on_after_friendly_attack(Minion const& attacker, int player) {
-  board[player].for_each_alive([&](Minion& m) {
+  board[player].minions.for_each_alive([&](Minion& m) {
     on_after_friendly_attack(m, attacker);
   });
 }
@@ -170,13 +170,13 @@ void Battle::damage_random_minion(int player, int amount) {
 }
 
 void Battle::damage_all(int player, int amount) {
-  board[player].for_each_with_pos([&](int pos, Minion& m) {
+  board[player].minions.for_each_with_pos([&](int pos, Minion& m) {
     if (!m.dead()) damage(player, pos, amount);
   });
 }
 
 void Battle::on_break_divine_shield(int player) {
-  board[player].for_each_alive([&](Minion& m) {
+  board[player].minions.for_each_alive([&](Minion& m) {
     on_break_friendly_divine_shield(m, player);
   });
 }
@@ -198,7 +198,7 @@ void Battle::check_for_deaths() {
       Board& board = this->board[player];
       num_dead[player] = 0;
       int next = 0; // positions in cleaned up board
-      for (int i=0; i<BOARDSIZE && board.minions[i].exists(); ++i) {
+      for (int i=0; board.minions.contains(i); ++i) {
         if (board.next_attacker == i) {
           board.next_attacker = next;
         }
@@ -221,9 +221,7 @@ void Battle::check_for_deaths() {
           next++;
         }
       }
-      for (;next<BOARDSIZE && board.minions[next].exists(); ++next) {
-        board.minions[next].clear();
-      }
+      board.minions.remove_all_from(next);
     }
     if (num_dead[0] == 0 && num_dead[1] == 0) return;
     // run death triggers
@@ -245,7 +243,7 @@ void Battle::on_death(Minion const& dead_minion, int player, int pos) {
     *log << "death: " << dead_minion << " at " << player << "." << pos << endl;
   }
   do_deathrattle(dead_minion, player, pos);
-  board[player].for_each_alive([&,player](Minion& m) {
+  board[player].minions.for_each_alive([&,player](Minion& m) {
     on_friendly_death(m, dead_minion, player);
   });
   // track mechs that died
@@ -281,7 +279,7 @@ void Battle::summon(Minion const& m, int player, int pos) {
 void Battle::summon_many(int count, Minion const& m, int player, int pos) {
   if (count == 0) return;
   count *= board[player].extra_summon_count();
-  for (int i=0; i<count && !board[player].full(); ++i) {
+  for (int i=0; i<count && !board[player].minions.full(); ++i) {
     board[player].insert(pos, m);
     on_summoned(board[player].minions[pos], player);
   }
@@ -290,7 +288,7 @@ void Battle::summon_many(int count, Minion const& m, int player, int pos) {
 
 void Battle::summon_for_opponent(Minion const& m, int player) {
   int count = board[player].extra_summon_count();
-  for (int i=0; i<count && !board[1-player].full(); ++i) {
+  for (int i=0; i<count && !board[1-player].minions.full(); ++i) {
     int pos = board[1-player].append(m);
     on_summoned(board[1-player].minions[pos], player);
   }
@@ -299,7 +297,7 @@ void Battle::summon_for_opponent(Minion const& m, int player) {
 
 void Battle::on_summoned(Minion& summoned, int player) {
   // summon triggers
-  board[player].for_each_alive([&](Minion& m) {
+  board[player].minions.for_each_alive([&](Minion& m) {
     on_friendly_summon(m, summoned, player);
   });
 }
@@ -342,18 +340,18 @@ bool recompute_aura_from(Minion& m, int pos, Board& board, Board const* enemy_bo
 void Board::recompute_auras(Board const* enemy_board) {
   if (!any_auras) return;
   // clear auras
-  for_each([&](Minion& m) {
+  minions.for_each([&](Minion& m) {
     m.clear_aura_buff();
   });
   any_auras = false;
   // recompute auras
-  for_each_with_pos([this,enemy_board](int pos, Minion& m) {
+  minions.for_each_with_pos([this,enemy_board](int pos, Minion& m) {
     if (recompute_aura_from(m, pos, *this, enemy_board)) {
       any_auras = true;
     }
   });
   // handle invalid auras
-  for_each([](Minion& m) {
+  minions.for_each([](Minion& m) {
     if (m.invalid_aura) {
       m.invalid_aura = false;
       // stats didn't include aura, now that we have recomputed aura effects, we can compensate

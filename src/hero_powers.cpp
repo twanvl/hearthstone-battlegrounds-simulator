@@ -21,19 +21,19 @@ void Battle::do_hero_power(HeroType hp, int player) {
       damage_random_minion(1-player, 3);
       break;
     case HeroType::TheLichKing: {
-      int i = board[player].size() - 1;
+      int i = board[player].minions.size() - 1;
       if (i >= 0) {
         board[player].minions[i].reborn = true;
       }
       break;
     }
     case HeroType::Giantfin:
-      board[player].for_each([](Minion& m){
+      board[player].minions.for_each([](Minion& m){
         m.deathrattle_murlocs = 1;
       });
       break;
     case HeroType::ProfessorPutricide:
-      if (board[player].minions[0].exists()) {
+      if (board[player].minions.contains(0)) {
         board[player].minions[0].attack += 10;
       }
       break;

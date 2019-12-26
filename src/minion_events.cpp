@@ -15,9 +15,9 @@ bool recompute_aura_from(Minion& m, int pos, Board& board, Board const* enemy_bo
     case MinionType::OldMurkEye: {
       // count murlocs for both players
       int count = pos >= 0 ? -1 : 0; // exclude self
-      count += board.count_if([](Minion const& to) { return to.has_tribe(Tribe::Murloc); });
+      count += board.minions.count_if([](Minion const& to) { return to.has_tribe(Tribe::Murloc); });
       if (enemy_board) {
-        count += enemy_board->count_if([](Minion const& to) { return to.has_tribe(Tribe::Murloc); });
+        count += enemy_board->minions.count_if([](Minion const& to) { return to.has_tribe(Tribe::Murloc); });
       }
       m.aura_buff(m.double_if_golden(count),0);
       return true;
@@ -131,7 +131,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
       }
       break;
     case MinionType::KangorsApprentice:
-      for (int i=0; i<m.double_if_golden(2) && mechs_that_died[player][i].exists(); ++i) {
+      for (int i=0; i<m.double_if_golden(2) && mechs_that_died[player].contains(i); ++i) {
         summon(mechs_that_died[player][i].new_copy(), player, pos);
       }
       break;

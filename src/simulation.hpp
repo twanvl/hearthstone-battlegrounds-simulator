@@ -221,7 +221,7 @@ void permute_minions(Board& board, Minion const original[], int const perm[], in
 }
 inline Board permute_minions(Board const& original, int const perm[], int n) {
   Board board = original;
-  permute_minions(board, original.minions, perm, n);
+  permute_minions(board, &original.minions[0], perm, n);
   return board;
 }
 
@@ -232,7 +232,7 @@ struct OptimizeMinionOrder {
   int n;
   
   OptimizeMinionOrder(Board const& board, Board const& enemy, Objective objective, int budget = DEFAULT_NUM_RUNS, RNG& rng = global_rng) {
-    n = board.size();
+    n = board.minions.size();
     // number of permutations
     int nperm = 1;
     for (int i=1; i<=n; ++i) nperm *= i;
@@ -277,7 +277,7 @@ struct OptimizeMinionBuffPlacement {
     current_score = objective_value(objective, simulate_deterministic(board, enemy, rng, full_runs));
     best_score = current_score;
     // optimize over all placements
-    board.for_each_with_pos([&](int i, Minion const&) {
+    board.minions.for_each_with_pos([&](int i, Minion const&) {
       Board new_board = board;
       new_board.minions[i].buff(buff);
       double score = objective_value(objective, simulate_deterministic(new_board, enemy, rng, full_runs));

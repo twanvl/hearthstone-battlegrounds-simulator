@@ -35,7 +35,7 @@ struct Battle {
     return turn >= 0;
   }
   bool done() const {
-    return board[0].empty() || board[1].empty() || turn >= 2;
+    return board[0].minions.empty() || board[1].minions.empty() || turn >= 2;
   }
 
   // Positive: player 0 won, negative, player 1 won, score is total stars remaining

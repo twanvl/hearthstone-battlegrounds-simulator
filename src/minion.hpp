@@ -79,11 +79,11 @@ public:
   bool cleave() const { return info(type).cleave; }
   bool has_tribe(Tribe query) const { return ::has_tribe(tribe(), query); }
 
-  bool exists() const { return type != MinionType::None; }
-  bool dead() const { return health <= 0; }
-  bool alive() const { return exists() && !dead(); }
+  constexpr bool exists() const { return type != MinionType::None; }
+  constexpr bool dead() const { return health <= 0; }
+  constexpr bool alive() const { return exists() && !dead(); }
 
-  int double_if_golden(int x) const { return ::double_if_golden(x, golden); }
+  constexpr int double_if_golden(int x) const { return ::double_if_golden(x, golden); }
 
   void clear() {
     this->type = MinionType::None;

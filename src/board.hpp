@@ -141,6 +141,12 @@ struct MinionArray {
     }
   }
 
+  template <typename F>
+  int count_if(F fun) const {
+    int count = 0;
+    for_each([&count,fun](Minion const& m) { if (fun(m)) count++; });
+    return count;
+  }
 };
 
 // -----------------------------------------------------------------------------
@@ -164,6 +170,10 @@ struct Board : MinionArray<BOARDSIZE> {
   int level = 0;
   // health of the player
   int health = 0;
+private:
+  // are there (possibly) any auras?
+  bool any_auras = false;
+public:
 
   Board() {}
   Board(std::initializer_list<Minion> minions, HeroType hero, bool use_hero_power, int level, int health)
@@ -183,7 +193,14 @@ struct Board : MinionArray<BOARDSIZE> {
     for (int i=0; i<NUM_EXTRA_POS; ++i) {
       if (pos >= track_pos[i]) track_pos[i]++;
     }
+    any_auras = any_auras || is_aura_minion(minion.type) || minion.invalid_aura;
     return true;
+  }
+
+  int append(Minion const& minion) {
+    int pos = MinionArray::append(minion);
+    any_auras = any_auras || is_aura_minion(minion.type) || minion.invalid_aura;
+    return pos;
   }
 
   void remove(int pos) {
@@ -308,11 +325,8 @@ struct Board : MinionArray<BOARDSIZE> {
 
   // Auras
 
-  void clear_auras() {
-    for_each([&](Minion& m) {
-      m.clear_aura_buff();
-    });
-  }
+  void recompute_auras(Board const* enemy_board = nullptr);
+
   template <typename Condition>
   void aura_buff_others_if(int attack, int health, int pos, Condition c) {
     // Note: also buff "dead" minions, they might not die because of the buff
@@ -320,6 +334,7 @@ struct Board : MinionArray<BOARDSIZE> {
       if (i != pos && c(m)) m.aura_buff(attack,health);
     });
   }
+
   void aura_buff_adjacent(int attack, int health, int pos) {
     if (pos > 0 &&           minions[pos-1].exists()) minions[pos-1].aura_buff(attack,health);
     if (pos+1 < BOARDSIZE && minions[pos+1].exists()) minions[pos+1].aura_buff(attack,health);

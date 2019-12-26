@@ -274,15 +274,6 @@ void Battle::do_deathrattle(Minion const& dead_minion, int player, int pos) {
 // Summoning
 // -----------------------------------------------------------------------------
 
-bool is_aura_minion(MinionType t) {
-  return t == MinionType::DireWolfAlpha
-      || t == MinionType::MurlocWarleader
-      || t == MinionType::OldMurkEye
-      || t == MinionType::PhalanxCommander
-      || t == MinionType::Siegebreaker
-      || t == MinionType::MalGanis;
-}
-
 void Battle::summon(Minion const& m, int player, int pos) {
   summon_many(1, m, player, pos);
 }
@@ -294,7 +285,6 @@ void Battle::summon_many(int count, Minion const& m, int player, int pos) {
     board[player].insert(pos, m);
     on_summoned(board[player].minions[pos], player);
   }
-  if (is_aura_minion(m.type)) any_auras = true;
   recompute_auras();
 }
 
@@ -304,7 +294,6 @@ void Battle::summon_for_opponent(Minion const& m, int player) {
     int pos = board[1-player].append(m);
     on_summoned(board[1-player].minions[pos], player);
   }
-  if (is_aura_minion(m.type)) any_auras = true;
   recompute_auras();
 }
 
@@ -339,19 +328,32 @@ void Battle::do_hero_powers() {
 // if there are none, we can skip this step.
 
 void Battle::recompute_auras() {
-  if (!any_auras) return;
-  any_auras = false;
   for (int player=0; player<2; ++player) {
     recompute_auras(player);
   }
 }
 
 void Battle::recompute_auras(int player) {
-  board[player].clear_auras();
-  board[player].for_each_with_pos([&,player](int pos, Minion& m) {
-    recompute_aura_from(m, player, pos);
+  board[player].recompute_auras(&board[1-player]);
+}
+
+bool recompute_aura_from(Minion& m, int pos, Board& board, Board const* enemy_board);
+
+void Board::recompute_auras(Board const* enemy_board) {
+  if (!any_auras) return;
+  // clear auras
+  for_each([&](Minion& m) {
+    m.clear_aura_buff();
   });
-  board[player].for_each([](Minion& m) {
+  any_auras = false;
+  // recompute auras
+  for_each_with_pos([this,enemy_board](int pos, Minion& m) {
+    if (recompute_aura_from(m, pos, *this, enemy_board)) {
+      any_auras = true;
+    }
+  });
+  // handle invalid auras
+  for_each([](Minion& m) {
     if (m.invalid_aura) {
       m.invalid_aura = false;
       // stats didn't include aura, now that we have recomputed aura effects, we can compensate

@@ -4,42 +4,36 @@
 // Aura buffs
 // -----------------------------------------------------------------------------
 
-void Battle::recompute_aura_from(Minion& m, int player, int pos) {
+bool recompute_aura_from(Minion& m, int pos, Board& board, Board const* enemy_board) {
   switch (m.type) {
     case MinionType::DireWolfAlpha:
-      board[player].aura_buff_adjacent(m.double_if_golden(1), 0, pos);
-      any_auras = true;
-      break;
+      board.aura_buff_adjacent(m.double_if_golden(1), 0, pos);
+      return true;
     case MinionType::MurlocWarleader:
-      board[player].aura_buff_others_if(m.double_if_golden(2), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
-      any_auras = true;
-      break;
+      board.aura_buff_others_if(m.double_if_golden(2), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Murloc); });
+      return true;
     case MinionType::OldMurkEye: {
       // count murlocs for both players
-      int count = -1; // exclude self
-      for (int who=0; who<2; ++who) {
-        board[who].for_each([=,&count](Minion const& to) {
-          if (to.has_tribe(Tribe::Murloc)) count++;
-        });
+      int count = pos >= 0 ? -1 : 0; // exclude self
+      count += board.count_if([](Minion const& to) { return to.has_tribe(Tribe::Murloc); });
+      if (enemy_board) {
+        count += enemy_board->count_if([](Minion const& to) { return to.has_tribe(Tribe::Murloc); });
       }
       m.aura_buff(m.double_if_golden(count),0);
-      any_auras = true;
-      break;
+      return true;
     }
     case MinionType::PhalanxCommander:
-      board[player].aura_buff_others_if(m.double_if_golden(2), 0, pos, [](Minion const& to){ return to.taunt; });
-      any_auras = true;
-      break;
+      board.aura_buff_others_if(m.double_if_golden(2), 0, pos, [](Minion const& to){ return to.taunt; });
+      return true;
     case MinionType::Siegebreaker:
-      board[player].aura_buff_others_if(m.double_if_golden(1), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
-      any_auras = true;
-      break;
+      board.aura_buff_others_if(m.double_if_golden(1), 0, pos, [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
+      return true;
     case MinionType::MalGanis:
-      board[player].aura_buff_others_if(m.double_if_golden(2), m.double_if_golden(2), pos,
+      board.aura_buff_others_if(m.double_if_golden(2), m.double_if_golden(2), pos,
         [](Minion const& to){ return to.has_tribe(Tribe::Demon); });
-      any_auras = true;
-      break;
-    default:; // nothing
+      return true;
+    default:;
+      return false;
   }
 }
 
@@ -154,7 +148,7 @@ void Battle::do_base_deathrattle(Minion const& m, int player, int pos) {
 // Events
 // -----------------------------------------------------------------------------
 
-void Battle::on_friendly_summon(Minion& m, Minion& summoned, int player) {
+void on_friendly_summon(Minion& m, Minion& summoned) {
   switch (m.type) {
     case MinionType::MurlocTidecaller:
       if (summoned.has_tribe(Tribe::Murloc)) {
@@ -183,6 +177,10 @@ void Battle::on_friendly_summon(Minion& m, Minion& summoned, int player) {
       break;
     default:;
   }
+}
+
+void Battle::on_friendly_summon(Minion& m, Minion& summoned, int player) {
+  ::on_friendly_summon(m, summoned);
 }
 
 void Battle::on_friendly_death(Minion& m, Minion const& dead_minion, int player) {

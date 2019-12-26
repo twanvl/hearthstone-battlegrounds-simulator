@@ -72,6 +72,17 @@ MinionType random_four_cost_minion(BattleRNG& rng, int player);
 MinionType random_deathrattle_minion(BattleRNG& rng, int player);
 MinionType random_legendary_minion(BattleRNG& rng, int player);
 
+// additional info
+
+constexpr bool is_aura_minion(MinionType t) {
+  return t == MinionType::DireWolfAlpha
+      || t == MinionType::MurlocWarleader
+      || t == MinionType::OldMurkEye
+      || t == MinionType::PhalanxCommander
+      || t == MinionType::Siegebreaker
+      || t == MinionType::MalGanis;
+}
+
 // -----------------------------------------------------------------------------
 // Hero power info
 // -----------------------------------------------------------------------------

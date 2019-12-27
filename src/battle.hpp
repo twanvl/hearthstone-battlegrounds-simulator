@@ -73,19 +73,9 @@ struct Battle {
 
   // Events during battle
   void on_death(Minion const& m, int player, int pos);
-  void on_summoned(Minion& summoned, int player);
+  void on_summoned(Minion& summoned, int player, int pos, bool played);
   void on_after_friendly_attack(Minion const& attacker, int player);
   void on_break_divine_shield(int player);
-
-  // Minion specific
-  void do_deathrattle(Minion const& m, int player, int pos);
-  void do_base_deathrattle(Minion const& m, int player, int pos);
-  void on_damaged(Minion const& m, int player, int pos);
-  void on_after_friendly_attack(Minion& m, Minion const& attacker);
-  void on_friendly_death(Minion& m, Minion const& dead_minion, int player);
-  void on_friendly_summon(Minion& m, Minion& summoned, int player);
-  void on_attack_and_kill(Minion& m, int player, int pos, bool overkill);
-  void on_break_friendly_divine_shield(Minion& m, int player); // for Bolvar
 
   // Hero powers
   void do_hero_powers();

@@ -238,6 +238,9 @@ public:
     if (minions.contains(pos+1)) minions[pos+1].aura_buff(attack,health);
   }
 
+  // Events
+
+  void on_summoned(Minion& summoned, int pos, bool played);
 };
 
 inline ostream& operator << (ostream& s, Board const& b) {

@@ -8,6 +8,9 @@ using std::max;
 // Minion instances
 // -----------------------------------------------------------------------------
 
+class Battle;
+class Board;
+
 struct Minion {
   int attack : 16, health : 16;
   MinionType type;
@@ -41,7 +44,7 @@ struct Minion {
     , invalid_aura(false)
   {}
   Minion(MinionType type, bool golden = false)
-    : Minion(type, info(type), golden)
+    : Minion(type, ::info(type), golden)
   {}
 private:
   inline constexpr Minion(MinionType type, MinionInfo const& info, bool golden)
@@ -73,10 +76,11 @@ public:
     return copy;
   }
 
-  const char* name() const { return info(type).name; }
-  int stars() const { return info(type).stars; }
-  Tribe tribe() const { return info(type).tribe; }
-  bool cleave() const { return info(type).cleave; }
+  MinionInfo info() const { return ::info(type); }
+  const char* name() const { return info().name; }
+  int stars() const { return info().stars; }
+  Tribe tribe() const { return info().tribe; }
+  bool cleave() const { return info().cleave; }
   bool has_tribe(Tribe query) const { return ::has_tribe(tribe(), query); }
 
   constexpr bool exists() const { return type != MinionType::None; }
@@ -132,6 +136,18 @@ public:
   void add_deathrattle_plants(int n=2) {
     this->deathrattle_plants = min(this->deathrattle_plants+n,7);
   }
+
+  // events
+
+  bool recompute_aura_from(Board& board, int pos, Board const* enemy_board = nullptr);
+  void do_battlecry(Board& board, int pos);
+  void do_deathrattle(Battle& battle, int player, int pos) const;
+  void on_friendly_summon(Board& board, Minion& summoned, bool played);
+  void on_friendly_death(Battle& battle, Minion const& dead_minion, int player);
+  void on_damaged(Battle& battle, int player, int pos);
+  void on_attack_and_kill(Battle& battle, int player, int pos, bool overkill);
+  void on_after_friendly_attack(Minion const& attacker);
+  void on_break_friendly_divine_shield();
 
   // full dump/construction
 

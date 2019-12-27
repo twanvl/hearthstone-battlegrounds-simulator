@@ -117,7 +117,7 @@ void Battle::single_attack_by(int player, int from) {
   damage(defender_snapshot, player, from);
   // after attack triggers
   if (kill) {
-    on_attack_and_kill(attacker, player, from, overkill);
+    attacker.on_attack_and_kill(*this, player, from, overkill);
   }
   on_after_friendly_attack(attacker, player);
   // remove dead minions and run deathrattles
@@ -126,7 +126,7 @@ void Battle::single_attack_by(int player, int from) {
 
 void Battle::on_after_friendly_attack(Minion const& attacker, int player) {
   board[player].minions.for_each_alive([&](Minion& m) {
-    on_after_friendly_attack(m, attacker);
+    m.on_after_friendly_attack(attacker);
   });
 }
 
@@ -149,7 +149,7 @@ bool Battle::damage(int player, int pos, int amount, bool poison) {
     if (m.health > 0 && poison) {
       m.health = 0;
     }
-    on_damaged(m, player, pos);
+    m.on_damaged(*this, player, pos);
     // if (m.health <= 0) destroy_minion(player, pos);
     return true;
   }
@@ -177,7 +177,7 @@ void Battle::damage_all(int player, int amount) {
 
 void Battle::on_break_divine_shield(int player) {
   board[player].minions.for_each_alive([&](Minion& m) {
-    on_break_friendly_divine_shield(m, player);
+    m.on_break_friendly_divine_shield();
   });
 }
 
@@ -242,28 +242,23 @@ void Battle::on_death(Minion const& dead_minion, int player, int pos) {
   if (verbose && log) {
     *log << "death: " << dead_minion << " at " << player << "." << pos << endl;
   }
-  do_deathrattle(dead_minion, player, pos);
+  // deathrattle
+  int deathrattle_count = board[player].extra_deathrattle_count();
+  for (int i=0; i<deathrattle_count; ++i) {
+    dead_minion.do_deathrattle(*this, player, pos);
+  }
+  // reborn?
+  if (dead_minion.reborn) {
+    summon(dead_minion.reborn_copy(), player, pos);
+  }
+  // triggers
   board[player].minions.for_each_alive([&,player](Minion& m) {
-    on_friendly_death(m, dead_minion, player);
+    m.on_friendly_death(*this, dead_minion, player);
   });
   // track mechs that died
   if (dead_minion.has_tribe(Tribe::Mech)) {
     if (!mechs_that_died[player].full()) {
       mechs_that_died[player].append(dead_minion);
-    }
-  }
-}
-
-void Battle::do_deathrattle(Minion const& dead_minion, int player, int pos) {
-  int count = board[player].extra_deathrattle_count();
-  for (int i=0; i<count; ++i) {
-    do_base_deathrattle(dead_minion, player, pos);
-    summon_many(dead_minion.deathrattle_murlocs, MinionType::MurlocScout, player, pos);
-    summon_many(dead_minion.deathrattle_microbots, MinionType::Microbot, player, pos);
-    summon_many(dead_minion.deathrattle_golden_microbots, Minion(MinionType::Microbot,true), player, pos);
-    summon_many(dead_minion.deathrattle_plants, MinionType::Plant, player, pos);
-    if (dead_minion.reborn) {
-      summon(dead_minion.reborn_copy(), player, pos);
     }
   }
 }
@@ -281,7 +276,7 @@ void Battle::summon_many(int count, Minion const& m, int player, int pos) {
   count *= board[player].extra_summon_count();
   for (int i=0; i<count && !board[player].minions.full(); ++i) {
     board[player].insert(pos, m);
-    on_summoned(board[player].minions[pos], player);
+    on_summoned(board[player].minions[pos], player, pos, false);
   }
   recompute_auras();
 }
@@ -290,15 +285,18 @@ void Battle::summon_for_opponent(Minion const& m, int player) {
   int count = board[player].extra_summon_count();
   for (int i=0; i<count && !board[1-player].minions.full(); ++i) {
     int pos = board[1-player].append(m);
-    on_summoned(board[1-player].minions[pos], player);
+    on_summoned(board[1-player].minions[pos], player, pos, false);
   }
   recompute_auras();
 }
 
-void Battle::on_summoned(Minion& summoned, int player) {
-  // summon triggers
-  board[player].minions.for_each_alive([&](Minion& m) {
-    on_friendly_summon(m, summoned, player);
+void Battle::on_summoned(Minion& summoned, int player, int pos, bool played) {
+  board[player].on_summoned(summoned, pos, played);
+}
+
+void Board::on_summoned(Minion& summoned, int pos, bool played) {
+  minions.for_each_with_pos([&](int p, Minion& m) {
+    if (p != pos) m.on_friendly_summon(*this, summoned, played);
   });
 }
 
@@ -335,8 +333,6 @@ void Battle::recompute_auras(int player) {
   board[player].recompute_auras(&board[1-player]);
 }
 
-bool recompute_aura_from(Minion& m, int pos, Board& board, Board const* enemy_board);
-
 void Board::recompute_auras(Board const* enemy_board) {
   if (!any_auras) return;
   // clear auras
@@ -346,7 +342,7 @@ void Board::recompute_auras(Board const* enemy_board) {
   any_auras = false;
   // recompute auras
   minions.for_each_with_pos([this,enemy_board](int pos, Minion& m) {
-    if (recompute_aura_from(m, pos, *this, enemy_board)) {
+    if (m.recompute_aura_from(*this, pos, enemy_board)) {
       any_auras = true;
     }
   });

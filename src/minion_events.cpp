@@ -270,3 +270,20 @@ void Minion::on_break_friendly_divine_shield() {
 // Battlecries
 // -----------------------------------------------------------------------------
 
+Tribe Minion::battlecry_target() const {
+  switch (type) {
+    case MinionType::RockpoolHunter:
+      return Tribe::Murloc;
+    case MinionType::NathrezimOverseer:
+      return Tribe::Demon;
+    case MinionType::Houndmaster:
+      return Tribe::Beast;
+    case MinionType::Toxfin:
+      return Tribe::Murloc;
+    case MinionType::VirmenSensei:
+      return Tribe::Beast;
+    default:
+      return Tribe::None;
+  }
+}
+

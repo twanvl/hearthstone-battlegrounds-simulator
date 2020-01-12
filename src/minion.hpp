@@ -139,8 +139,10 @@ public:
 
   // events
 
+  Tribe battlecry_target() const;
+
   bool recompute_aura_from(Board& board, int pos, Board const* enemy_board = nullptr);
-  void do_battlecry(Board& board, int pos);
+  void do_battlecry(Board& board, int pos, int target=-1);
   void do_deathrattle(Battle& battle, int player, int pos) const;
   void on_friendly_summon(Board& board, Minion& summoned, bool played);
   void on_friendly_death(Battle& battle, Minion const& dead_minion, int player);

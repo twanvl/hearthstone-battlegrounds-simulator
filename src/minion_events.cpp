@@ -140,6 +140,9 @@ void Minion::do_deathrattle(Battle& battle, int player, int pos) const {
         battle.summon(random_legendary_minion(battle.rng, player), player, pos);
       }
       break;
+    case MinionType::Voidlord:
+      battle.summon_many(3, Minion(MinionType::Voidwalker,golden), player, pos);
+      break;
     default:;
   }
   // extra deathrattles

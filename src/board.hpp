@@ -20,6 +20,8 @@ const int BOARDSIZE = 7;
 const int MAX_HAND_SIZE = 10;
 const int NUM_EXTRA_POS = 3;
 
+#define COMBAT_ONLY 1
+
 // Board state
 struct Board {
   MinionArray<BOARDSIZE> minions;
@@ -37,6 +39,7 @@ struct Board {
   int level = 0;
   // health of the player
   int health = 0;
+  #if !COMBAT_ONLY
   // cards in hand
   std::vector<Minion> hand;
   // bob's minions
@@ -44,6 +47,7 @@ struct Board {
   std::vector<Minion> bobs_minions;
   // available gold
   int gold = 0;
+  #endif
 private:
   // are there (possibly) any auras?
   bool any_auras = false;

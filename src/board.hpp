@@ -138,21 +138,25 @@ public:
     return -1;
   }
 
-  int random_living_minion(BattleRNG& rng, RNGKey key) const {
-    int num_alive = 0;
+  template <typename P>
+  int random_minion_satisfying(P predicate, BattleRNG& rng, RNGKey key) const {
+    int num_options = 0;
     for (int i=0; minions.contains(i); ++i) {
-      if (!minions[i].dead()) {
-        num_alive++;
+      if (predicate(minions[i])) {
+        num_options++;
       }
     }
-    if (num_alive == 0) return -1;
-    int pick = rng.random(num_alive, key);
+    if (num_options == 0) return -1;
+    int pick = rng.random(num_options, key);
     for (int i=0; minions.contains(i); ++i) {
-      if (!minions[i].dead()) {
+      if (predicate(minions[i])) {
         if (pick-- == 0) return i;
       }
     }
     return -1;
+  }
+  int random_living_minion(BattleRNG& rng, RNGKey key) const {
+    return random_minion_satisfying([](Minion const& m) { return !m.dead(); }, rng, key);
   }
 
   // Permanent buffs
@@ -177,7 +181,11 @@ public:
     if (i != -1) fun(minions[i]);
   }
   void give_random_minion_divine_shield(BattleRNG& rng, int player) {
-    for_random_living_minion([](Minion& m) { m.divine_shield = true; }, rng, rng_key(RNGType::GiveDivineShield,player));
+    // Note: random minion that doesn't have divine shield
+    int i = random_minion_satisfying([](Minion const& m){ return !m.dead() && !m.divine_shield; }, rng, rng_key(RNGType::GiveDivineShield,player));
+    if (i != -1) {
+      minions[i].divine_shield = true;
+    }
   }
   void buff_random_minion(int attack, int health, BattleRNG& rng, int player) {
     for_random_living_minion([=](Minion& m) { m.buff(attack, health); }, rng, rng_key(RNGType::Buff,player,attack+(health<<8)));

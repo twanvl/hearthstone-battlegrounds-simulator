@@ -211,7 +211,9 @@ void Minion::on_friendly_death(Battle& battle, Minion const& dead_minion, int pl
       break;
     case MinionType::SoulJuggler:
       if (dead_minion.has_tribe(Tribe::Demon)) {
-        battle.damage_random_minion(1-player, double_if_golden(3));
+        TWICE_IF_GOLDEN() {
+          battle.damage_random_minion(1-player, 3);
+        }
         // already in a loop that does check_for_deaths();
       }
       break;

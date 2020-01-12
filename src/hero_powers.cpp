@@ -17,8 +17,8 @@ void Battle::do_hero_power(HeroType hp, int player) {
       damage_random_minion(1-player, 8);
       break;
     case HeroType::PatchesThePirate:
-      damage_random_minion(1-player, 3);
-      damage_random_minion(1-player, 3);
+      damage_random_minion(1-player, 4);
+      damage_random_minion(1-player, 4);
       break;
     case HeroType::TheLichKing: {
       int i = board[player].minions.size() - 1;

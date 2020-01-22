@@ -164,6 +164,14 @@ def add_custom_minions(minions):
   mama.tribe = "Beast"
   minions.append([mama,None])
 
+  na = CustomEntity("Nightmare Amalgam")
+  na.id = "GIL_681"
+  na.tier = 2
+  na.attack = 3
+  na.health = 4
+  na.tribe = "All"
+  minions.append([na,None])
+
 def add_custom_heroes(heroes):
   heroes.insert(0,NoneEntity())
 

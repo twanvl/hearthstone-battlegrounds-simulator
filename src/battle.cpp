@@ -64,13 +64,12 @@ bool Battle::attack_round() {
     turn = 1 - turn;
     return false;
   }
-  // info on attacker
-  bool windfury = active.minions[from].windfury;
+  // number of attacks
+  int num_attacks = active.minions[from].num_attacks();
   active.track_pos[0] = from; // track if this minion stays alive
-  // do attack
-  single_attack_by(turn, from);
-  // windfury?
-  if (windfury && active.track_pos[0] > 0) {
+  // do attack(s)
+  for (int i=0; i < num_attacks; ++i) {
+    if (active.track_pos[0] < 0) break; // attacker died
     from = active.track_pos[0]; // minions might have been inserted/removed
     single_attack_by(turn, from);
   }

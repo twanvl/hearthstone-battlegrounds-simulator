@@ -54,6 +54,11 @@ void Minion::do_deathrattle(Battle& battle, int player, int pos) const {
         battle.board[player].give_random_minion_divine_shield(battle.rng, player);
       }
       break;
+    case MinionType::FiendishServant:
+      TWICE_IF_GOLDEN() {
+        battle.board[player].buff_random_minion(this->attack,0, battle.rng, player);
+      }
+      break;
     // Tier 2
     case MinionType::HarvestGolem:
       battle.summon(Minion(MinionType::DamagedGolem,golden), player, pos);
@@ -77,6 +82,9 @@ void Minion::do_deathrattle(Battle& battle, int player, int pos) const {
       break;
     case MinionType::SpawnOfNZoth:
       battle.board[player].buff_all(double_if_golden(1), double_if_golden(1));
+      break;
+    case MinionType::Imprisoner:
+      battle.summon(Minion(MinionType::Imp,golden), player, pos);
       break;
     // Tier 3
     case MinionType::InfestedWolf:

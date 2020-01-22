@@ -81,7 +81,12 @@ public:
   int stars() const { return info().stars; }
   Tribe tribe() const { return info().tribe; }
   bool cleave() const { return info().cleave; }
+  bool mega_windfury() const { return type == MinionType::ZappSlywick && golden; }
   bool has_tribe(Tribe query) const { return ::has_tribe(tribe(), query); }
+
+  int num_attacks() const {
+    return mega_windfury() ? 4 : windfury ? 2 : 1;
+  }
 
   constexpr bool exists() const { return type != MinionType::None; }
   constexpr bool dead() const { return health <= 0; }
